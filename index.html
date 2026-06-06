@@ -376,10 +376,13 @@ hr{border:none;border-top:1px solid var(--border);margin:14px 0}
 <div class="overlay" id="m-inline-cat"><div class="modal" style="width:340px"><div class="mh"><h2>Change category</h2><button class="close-x" onclick="cm('m-inline-cat')">×</button></div><p id="inline-merchant" style="font-size:12px;color:var(--text2);margin-bottom:14px"></p><div class="fl"><label>Category</label><select id="inline-cat"></select></div><label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:16px;cursor:pointer;color:var(--text2)"><input type="checkbox" id="inline-rule" checked style="accent-color:var(--blue);width:auto">Save as rule for this merchant</label><button class="btn btn-blue" style="width:100%;justify-content:center" onclick="applyInlineCat()">Apply</button></div></div>
 
 <script>
-// ── SUPABASE INIT ──
+// ── MODE DETECTION ──
+// Preview mode = running in Claude artifact (no real Supabase connection)
+// Live mode = running on GitHub Pages (full Supabase)
+const IS_LIVE=window.location.hostname.includes('github.io')||window.location.hostname.includes('supabase');
 const SB_URL='https://rvmaqoroadwbcgmemoqn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bWFxb3JvYWR3YmNnbWVtb3FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTc3OTAsImV4cCI6MjA5NjE3Mzc5MH0.w9Eg5l6OorJtqjQWWJSgBWG4nApDKyx9XZs-QbY6_VU';
-const sb=supabase.createClient(SB_URL,SB_KEY);
+const sb=IS_LIVE?supabase.createClient(SB_URL,SB_KEY):null;
 
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const NOW=new Date();
@@ -400,11 +403,56 @@ const weekDates=()=>Array.from({length:7},(_,i)=>{const d=new Date(weekStart());
 const weekYes=h=>{const wd=weekDates();let c=0;wd.forEach(d=>{const ds=d.toISOString().split('T')[0];if(logs[h.id+'_'+ds]==='yes')c++;});return c;};
 const hStatus=h=>{const c=weekYes(h);return h.dir==='increase'?(c>=h.target?'good':c>=h.target*.5?'warn':'bad'):(c<=h.target?'good':c<=h.target+1?'warn':'bad');};
 
-// ── SAVING INDICATOR ──
-function showSaving(){const el=document.getElementById('saving-ind');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1500);}
+// ── LOCAL DATA (preview mode) ──
+const LS=k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
+const SS=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+function loadLocalData(){
+  habits=LS('los_habits')||[{id:'h1',name:'BJJ',dir:'increase',target:2,cat:'fitness'},{id:'h2',name:'Gym',dir:'increase',target:4,cat:'fitness'},{id:'h3',name:'Running',dir:'increase',target:3,cat:'fitness'},{id:'h4',name:'Eating out',dir:'decrease',target:2,cat:'nutrition'},{id:'h5',name:'Drinking',dir:'decrease',target:1,cat:'lifestyle'},{id:'h6',name:'Meal prep',dir:'increase',target:1,cat:'nutrition'}];
+  logs=LS('los_logs')||{};
+  txns=LS('los_txns')||[];
+  bills=LS('los_fixed')||[];
+  incomes=LS('los_incomes')||[];
+  savings=LS('los_savings')||[];
+  journal=LS('los_journal')||[];
+  rules=LS('los_rules')||[];
+  mCats=LS('los_merchant_cats')||{};
+  billPaid=LS('los_bill_paid')||{};
+  budget=LS('los_budget')||{mode:'pct',pct:10,fixed:0};
+  customCats=LS('los_custom_cats')||[];
+  if(!bills.length)seedLocalBills();
+  if(!incomes.length)seedLocalIncome();
+}
+function saveLocal(){
+  SS('los_habits',habits);SS('los_logs',logs);SS('los_txns',txns);
+  SS('los_fixed',bills);SS('los_incomes',incomes);SS('los_savings',savings);
+  SS('los_journal',journal);SS('los_rules',rules);SS('los_merchant_cats',mCats);
+  SS('los_bill_paid',billPaid);SS('los_budget',budget);SS('los_custom_cats',customCats);
+}
+function seedLocalBills(){
+  bills=[{id:'b1',name:'Rent (Mom) — 1st',amount:350,cat:'housing',due_day:1},{id:'b2',name:'Rent (Mom) — 15th',amount:350,cat:'housing',due_day:15},{id:'b3',name:'Car Insurance',amount:176.33,cat:'insurance',due_day:15},{id:'b4',name:'Mom Car Insurance',amount:224.84,cat:'insurance',due_day:15},{id:'b5',name:'Student Loans',amount:187.76,cat:'bills',due_day:1},{id:'b6',name:'Haircut 1',amount:50,cat:'personal care',due_day:null},{id:'b7',name:'Haircut 2',amount:50,cat:'personal care',due_day:null},{id:'b8',name:'Apple Music',amount:10.99,cat:'subscriptions',due_day:null},{id:'b9',name:'Amazon Prime',amount:14.99,cat:'subscriptions',due_day:null},{id:'b10',name:'iCloud',amount:2.99,cat:'subscriptions',due_day:null},{id:'b11',name:'Claude',amount:20,cat:'subscriptions',due_day:null}];
+  SS('los_fixed',bills);
+}
+function seedLocalIncome(){
+  incomes=[{id:'i1',name:'Salary (bi-weekly)',amount:1599.66,freq:'bi-weekly',monthly:1599.66*26/12}];
+  SS('los_incomes',incomes);
+}
+
+// ── PERSIST (routes to local or Supabase) ──
+function persist(){if(!IS_LIVE)saveLocal();}
+function showSaving(){const el=document.getElementById('saving-ind');if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1500);}}
 
 // ── AUTH ──
 async function signIn(){
+  if(!IS_LIVE){
+    // Preview mode — skip login, use localStorage
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    UID='preview-user';
+    loadLocalData();
+    renderDash();
+    return;
+  }
   const email=document.getElementById('login-email').value.trim();
   const password=document.getElementById('login-password').value;
   const btn=document.getElementById('login-btn');
@@ -415,7 +463,7 @@ async function signIn(){
   await initApp(data.user);
 }
 async function signOut(){
-  await sb.auth.signOut();
+  if(IS_LIVE)await sb.auth.signOut();
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
   UID=null;
@@ -962,8 +1010,18 @@ async function sendIB(){const inp=document.getElementById('ib-input');const q=in
 
 // ── INIT ──
 document.querySelectorAll('.overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
-sb.auth.onAuthStateChange((event,session)=>{if(session?.user)initApp(session.user);});
-sb.auth.getSession().then(({data:{session}})=>{if(!session){document.getElementById('login-screen').style.display='flex';}});
+if(!IS_LIVE){
+  // Preview mode: skip login, load from localStorage
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  UID='preview-user';
+  loadLocalData();
+  renderDash();
+} else {
+  // Live mode: check Supabase session
+  sb.auth.onAuthStateChange((event,session)=>{if(session?.user)initApp(session.user);});
+  sb.auth.getSession().then(({data:{session}})=>{if(!session)document.getElementById('login-screen').style.display='flex';});
+}
 </script>
 </body>
 </html>
