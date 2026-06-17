@@ -271,6 +271,7 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
           </button>
         </div>
         <div id="habits-week" class="card">
+          <div id="wk-nav" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bdr)"></div>
           <div id="wk-headers" style="padding-bottom:10px;border-bottom:1px solid var(--bdr);margin-bottom:2px"></div>
           <div id="habits-list" ondragover="onDragOver(event)" ondrop="onDrop(event)"></div>
         </div>
@@ -548,11 +549,20 @@ const toMonthly=function(o){if(o.freq==='bi-weekly')return o.amount*26/12;if(o.f
 const om=function(id){document.getElementById(id).classList.add('open');};
 const cm=function(id){document.getElementById(id).classList.remove('open');};
 
+// ── WEEK NAVIGATION ──
+var weekOffset=0; // 0 = current week, 1 = last week, 2 = two weeks ago, etc.
+
 function getWeekDates(){
   var mon=new Date(NOW);
-  mon.setDate(NOW.getDate()-TODAY_IDX);
+  mon.setDate(NOW.getDate()-TODAY_IDX-(weekOffset*7));
   mon.setHours(0,0,0,0);
   return Array.from({length:7},function(_,i){var d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+}
+
+function changeWeek(dir){
+  weekOffset+=dir;
+  if(weekOffset<0)weekOffset=0; // can't go into the future
+  renderHabits();
 }
 
 function isWin(habit,state){
@@ -856,13 +866,37 @@ async function delHabit(){
 
 function renderHabits(){
   var wd=getWeekDates();
+  var isCurrentWeek=weekOffset===0;
+
+  // Week navigation bar
+  var wkStart=wd[0];var wkEnd=wd[6];
+  var wkLabel=wkStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+wkEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  var navEl=document.getElementById('wk-nav');
+  if(navEl){
+    navEl.innerHTML=
+      '<button class="btn btn-ghost btn-sm" onclick="changeWeek(1)" style="padding:4px 10px">← Prev</button>'+
+      '<span style="font-size:13px;font-weight:600;color:'+(isCurrentWeek?'var(--blue)':'var(--txt)')+'">'+
+        (isCurrentWeek?'This week':weekOffset===1?'Last week':wkLabel)+
+      '</span>'+
+      '<button class="btn btn-ghost btn-sm" onclick="changeWeek(-1)" style="padding:4px 10px;'+(isCurrentWeek?'opacity:.3;pointer-events:none':'')+'">Next →</button>';
+  }
+
+  // Headers: date on top, day letter below
   var hdr=document.getElementById('wk-headers');
   if(hdr){
     hdr.style.display='grid';
     hdr.style.gridTemplateColumns='20px 1fr repeat(7,32px)';
     hdr.style.gap='8px';
-    hdr.innerHTML='<span></span><span></span>'+DAYS.map(function(d,i){
-      return '<span style="text-align:center;font-size:10px;font-weight:'+(i===TODAY_IDX?700:500)+';color:'+(i===TODAY_IDX?'var(--blue)':'var(--txt3)')+'">'+d[0]+'</span>';
+    hdr.innerHTML='<span></span><span></span>'+wd.map(function(d,i){
+      var isToday=d.toISOString().split('T')[0]===TODAY;
+      var dateStr=(d.getMonth()+1)+'/'+d.getDate();
+      var dayLetter=DAYS[i][0];
+      var color=isToday?'var(--blue)':'var(--txt3)';
+      return '<div style="text-align:center;display:flex;flex-direction:column;gap:1px">'+
+        '<span style="font-size:9px;font-weight:600;color:'+color+'">'+dateStr+'</span>'+
+        '<span style="font-size:10px;font-weight:'+(isToday?700:500)+';color:'+color+'">'+dayLetter+'</span>'+
+      '</div>';
     }).join('');
   }
   var el=document.getElementById('habits-list');if(!el)return;
@@ -871,7 +905,8 @@ function renderHabits(){
     var stats=habitWeekStats(h);
     var dots=wd.map(function(d,i){
       var ds=d.toISOString().split('T')[0];
-      var isFut=d>NOW;var isT=i===TODAY_IDX;
+      var isFut=isCurrentWeek&&d>NOW; // only lock future days on current week
+      var isT=isCurrentWeek&&i===TODAY_IDX;
       var state=logs[h.id+'_'+ds];
       var cls='dot';
       if(isFut)cls='dot future';
