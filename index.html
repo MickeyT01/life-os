@@ -92,6 +92,13 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 .mcell.red{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35);color:var(--red)}
 .mcell.today{border-color:var(--blue);border-width:2px}
 .mcell.future{opacity:.15;pointer-events:none;background:transparent;border-color:transparent}
+.mcell.streak{background:rgba(20,184,166,.32);border-color:rgba(20,184,166,.65);color:var(--teal)}
+.ycell{width:11px;height:11px;border-radius:2px;background:var(--sur2);border:1px solid var(--bdr);cursor:pointer;flex-shrink:0}
+.ycell:hover{outline:1.5px solid var(--blue);outline-offset:1px}
+.ycell.empty{background:transparent;border-color:transparent;cursor:default}
+.ycell.green{background:rgba(34,197,94,.4);border-color:rgba(34,197,94,.6)}
+.ycell.red{background:rgba(239,68,68,.4);border-color:rgba(239,68,68,.6)}
+.ycell.streak{background:rgba(20,184,166,.65);border-color:var(--teal)}
 .htab-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--bdr2);background:var(--sur2);color:var(--txt2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
 .htab-btn.active{background:var(--blue);color:#fff;border-color:transparent}
 .tx{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:8px;transition:background .12s;border-bottom:1px solid var(--bdr)}
@@ -266,6 +273,7 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
           <div class="tabs">
             <button class="tab active" onclick="habitTab('week',this)">This week</button>
             <button class="tab" onclick="habitTab('month',this)">Month</button>
+            <button class="tab" onclick="habitTab('year',this)">Year</button>
           </div>
           <button class="btn btn-blue btn-sm" onclick="openHabitModal()">
             <svg style="width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add habit
@@ -278,8 +286,16 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
         </div>
         <div id="habits-month" style="display:none">
           <div class="card">
+            <div id="mo-nav" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bdr)"></div>
             <div id="mo-tabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px"></div>
             <div id="mo-cal"></div>
+          </div>
+        </div>
+        <div id="habits-year" style="display:none">
+          <div class="card">
+            <div id="yr-nav" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bdr)"></div>
+            <div id="yr-tabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px"></div>
+            <div id="yr-cal" style="overflow-x:auto;padding-bottom:6px"></div>
           </div>
         </div>
       </div>
@@ -578,29 +594,30 @@ function dotClass(habit,dateStr,isFuture,isToday){
   return isWin(habit,state)?'dot green':'dot red';
 }
 
-function longestStreak(habit){
+function streakInfo(habit){
   var prefix=habit.id+'_';
   var dates=Object.keys(logs).filter(function(k){return k.indexOf(prefix)===0;}).map(function(k){return k.slice(prefix.length);});
-  if(!dates.length)return 0;
+  if(!dates.length)return{max:0,start:null,end:null};
   dates.sort();
-  var maxStreak=0,curStreak=0,prevDate=null;
+  var maxStreak=0,curStreak=0,prevDate=null,curStart=null,bestStart=null,bestEnd=null;
   dates.forEach(function(ds){
     var win=isWin(habit,logs[prefix+ds]);
     if(win){
       if(prevDate){
         var diffDays=Math.round((new Date(ds)-new Date(prevDate))/86400000);
-        curStreak=diffDays===1?curStreak+1:1;
-      } else {
-        curStreak=1;
-      }
-      if(curStreak>maxStreak)maxStreak=curStreak;
+        if(diffDays===1){curStreak++;}else{curStreak=1;curStart=ds;}
+      } else {curStreak=1;curStart=ds;}
+      if(curStreak>maxStreak){maxStreak=curStreak;bestStart=curStart;bestEnd=ds;}
       prevDate=ds;
     } else {
-      curStreak=0;
-      prevDate=null;
+      curStreak=0;curStart=null;prevDate=null;
     }
   });
-  return maxStreak;
+  return{max:maxStreak,start:bestStart,end:bestEnd};
+}
+function longestStreak(habit){return streakInfo(habit).max;}
+function formatDateShort(ds){
+  return new Date(ds).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
 function habitWeekStats(habit){
@@ -829,7 +846,9 @@ function habitTab(t,btn){
   btn.classList.add('active');
   document.getElementById('habits-week').style.display=t==='week'?'block':'none';
   document.getElementById('habits-month').style.display=t==='month'?'block':'none';
+  document.getElementById('habits-year').style.display=t==='year'?'block':'none';
   if(t==='month')renderMonth();
+  if(t==='year')renderYear();
 }
 
 function finTab(t,btn){
@@ -941,16 +960,13 @@ function renderHabits(){
       var lbl=state==='yes'?'Y':state==='no'?'N':DAYS[i][0];
       return '<div class="'+cls+'" onclick="cycleDot(\''+h.id+'\',\''+ds+'\').then(function(){renderHabits();renderDash();})">'+lbl+'</div>';
     }).join('');
-    var tagCls=stats.status==='good'?'tg':stats.status==='warn'?'ta':'tr';
-    var tagTxt=stats.total>0?(stats.good+'/'+stats.total+' good'):'no logs';
     var streak=longestStreak(h);
-    var streakTxt=h.dir==='increase'?'Best streak '+streak+'d':'Best streak '+streak+'d no';
+    var streakTxt='Best streak '+streak+'d';
     return '<div class="habit-row" data-hid="'+h.id+'" draggable="true" ondragstart="onDragStart(event,\''+h.id+'\')" ondragend="onDragEnd(event)">'+
       '<span class="drag-handle">⠿</span>'+
       '<div>'+
         '<div style="display:flex;align-items:center;gap:7px;margin-bottom:2px">'+
           '<button class="hname-btn" onclick="openHabitModal(\''+h.id+'\')">'+h.name+'</button>'+
-          '<span class="tag '+tagCls+'">'+tagTxt+'</span>'+
           (streak>0?'<span class="tag tst">'+streakTxt+'</span>':'')+
         '</div>'+
         '<div class="hmeta">'+(h.dir==='increase'?'Goal':'Limit')+': '+h.target+'x/wk · '+h.cat+'</div>'+
@@ -962,7 +978,18 @@ function renderHabits(){
 }
 
 var activeMonthH='all';
+var monthOffset=0;
+function changeMonth(dir){
+  monthOffset+=dir;
+  if(monthOffset<0)monthOffset=0; // can't go into the future
+  renderMonthCal();
+}
+function getMonthYM(){
+  var d=new Date(NOW.getFullYear(),NOW.getMonth()-monthOffset,1);
+  return{yr:d.getFullYear(),mo:d.getMonth()};
+}
 function renderMonth(){
+  monthOffset=0;
   var tabs=document.getElementById('mo-tabs');
   if(tabs)tabs.innerHTML=[{id:'all',name:'All'}].concat(habits).map(function(h){
     return '<button class="htab-btn'+(activeMonthH===(h.id||'all')?' active':'')+'" onclick="setMonthH(\''+(h.id||'all')+'\',this)">'+h.name+'</button>';
@@ -971,17 +998,115 @@ function renderMonth(){
 }
 function setMonthH(id,btn){
   activeMonthH=id;
-  document.querySelectorAll('.htab-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('#mo-tabs .htab-btn').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   renderMonthCal();
 }
+
+var activeYearH='all';
+var yearOffset=0;
+function changeYear(dir){
+  yearOffset+=dir;
+  if(yearOffset<0)yearOffset=0; // can't go into the future
+  renderYearCal();
+}
+function getYearWeeks(yr){
+  var start=new Date(yr,0,1);
+  var startDow=(start.getDay()+6)%7;
+  start.setDate(start.getDate()-startDow);
+  var end=new Date(yr,11,31);
+  var endDow=(end.getDay()+6)%7;
+  end.setDate(end.getDate()+(6-endDow));
+  var weeks=[];var cur=new Date(start);
+  while(cur<=end){
+    var week=[];
+    for(var i=0;i<7;i++){week.push(new Date(cur));cur.setDate(cur.getDate()+1);}
+    weeks.push(week);
+  }
+  return weeks;
+}
+function renderYear(){
+  yearOffset=0;
+  var tabs=document.getElementById('yr-tabs');
+  if(tabs)tabs.innerHTML=[{id:'all',name:'All'}].concat(habits).map(function(h){
+    return '<button class="htab-btn'+(activeYearH===(h.id||'all')?' active':'')+'" onclick="setYearH(\''+(h.id||'all')+'\',this)">'+h.name+'</button>';
+  }).join('');
+  renderYearCal();
+}
+function setYearH(id,btn){
+  activeYearH=id;
+  document.querySelectorAll('#yr-tabs .htab-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderYearCal();
+}
+function renderYearCal(){
+  var el=document.getElementById('yr-cal');if(!el)return;
+  var yr=NOW.getFullYear()-yearOffset;
+  var isCurrentYear=yearOffset===0;
+  var navEl=document.getElementById('yr-nav');
+  if(navEl){
+    navEl.innerHTML=
+      '<button class="btn btn-ghost btn-sm" onclick="changeYear(1)" style="padding:4px 10px">← Prev</button>'+
+      '<span style="font-size:13px;font-weight:600;color:'+(isCurrentYear?'var(--blue)':'var(--txt)')+'">'+yr+'</span>'+
+      '<button class="btn btn-ghost btn-sm" onclick="changeYear(-1)" style="padding:4px 10px;'+(isCurrentYear?'opacity:.3;pointer-events:none':'')+'">Next →</button>';
+  }
+  var weeks=getYearWeeks(yr);
+  var showH=activeYearH==='all'?habits:[habits.find(function(h){return h.id===activeYearH;})].filter(Boolean);
+  if(!showH.length){el.innerHTML='<div class="empty">No habits yet.</div>';return;}
+  el.innerHTML=showH.map(function(h){
+    var info=streakInfo(h);
+    var lastMo=-1;
+    var labels=weeks.map(function(week){
+      var firstOfMonth=week.find(function(d){return d.getDate()===1&&d.getFullYear()===yr;});
+      var lbl='';
+      if(firstOfMonth&&firstOfMonth.getMonth()!==lastMo){lbl=firstOfMonth.toLocaleDateString('en-US',{month:'short'});lastMo=firstOfMonth.getMonth();}
+      return '<div style="width:11px;font-size:9px;color:var(--txt3);flex-shrink:0">'+lbl+'</div>';
+    }).join('');
+    var cols=weeks.map(function(week){
+      var cells=week.map(function(d){
+        var inYear=d.getFullYear()===yr;
+        var ds=d.toISOString().split('T')[0];
+        if(!inYear||d>NOW)return'<div class="ycell empty"></div>';
+        var state=logs[h.id+'_'+ds];
+        var cls='ycell';
+        if(state){
+          var win=isWin(h,state);
+          var inStreak=win&&info.start&&ds>=info.start&&ds<=info.end;
+          cls+=inStreak?' streak':(win?' green':' red');
+        }
+        return '<div class="'+cls+'" title="'+ds+'" onclick="cycleDot(\''+h.id+'\',\''+ds+'\').then(function(){renderYearCal();})"></div>';
+      }).join('');
+      return '<div style="display:flex;flex-direction:column;gap:2px">'+cells+'</div>';
+    }).join('');
+    var streakTxt=info.max>0?('Best streak '+info.max+'d'+(info.start?' · '+formatDateShort(info.start)+'–'+formatDateShort(info.end):'')):'';
+    return '<div style="margin-bottom:26px">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+        '<span style="font-size:13px;font-weight:600">'+h.name+'</span>'+
+        (info.max>0?'<span class="tag tst">'+streakTxt+'</span>':'')+
+      '</div>'+
+      '<div style="display:flex;gap:2px;margin-bottom:3px">'+labels+'</div>'+
+      '<div style="display:flex;gap:2px">'+cols+'</div>'+
+    '</div>';
+  }).join('');
+}
+
 function renderMonthCal(){
   var el=document.getElementById('mo-cal');if(!el)return;
-  var yr=NOW.getFullYear(),mo=NOW.getMonth();
+  var ym=getMonthYM();var yr=ym.yr,mo=ym.mo;
+  var isCurrentMonth=monthOffset===0;
+  var navEl=document.getElementById('mo-nav');
+  if(navEl){
+    var moLabel=new Date(yr,mo,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    navEl.innerHTML=
+      '<button class="btn btn-ghost btn-sm" onclick="changeMonth(1)" style="padding:4px 10px">← Prev</button>'+
+      '<span style="font-size:13px;font-weight:600;color:'+(isCurrentMonth?'var(--blue)':'var(--txt)')+'">'+moLabel+'</span>'+
+      '<button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)" style="padding:4px 10px;'+(isCurrentMonth?'opacity:.3;pointer-events:none':'')+'">Next →</button>';
+  }
   var dim=new Date(yr,mo+1,0).getDate();
   var fd=(new Date(yr,mo,1).getDay()+6)%7;
   var showH=activeMonthH==='all'?habits:[habits.find(function(h){return h.id===activeMonthH;})].filter(Boolean);
   el.innerHTML=showH.map(function(h){
+    var info=streakInfo(h);
     var cells='';
     for(var i=0;i<fd;i++)cells+='<div class="mcell future"></div>';
     for(var d=1;d<=dim;d++){
@@ -990,7 +1115,11 @@ function renderMonthCal(){
       var state=logs[h.id+'_'+ds];
       var cls='mcell';
       if(isFut)cls='mcell future';
-      else if(state)cls=isWin(h,state)?'mcell green':'mcell red';
+      else if(state){
+        var win=isWin(h,state);
+        var inStreak=win&&info.start&&ds>=info.start&&ds<=info.end;
+        cls=inStreak?'mcell streak':(win?'mcell green':'mcell red');
+      }
       else if(isT)cls='mcell today';
       var tag=state?'<span style="font-size:8px;font-weight:800">'+(state==='yes'?'Y':'N')+'</span>':'';
       cells+='<div class="'+cls+'" onclick="cycleDot(\''+h.id+'\',\''+ds+'\').then(function(){renderMonthCal();})"><span style="font-size:11px;font-weight:600">'+d+'</span>'+tag+'</div>';
