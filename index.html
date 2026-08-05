@@ -70,6 +70,7 @@ textarea{resize:vertical;min-height:72px}
 .tr{background:rgba(239,68,68,.15);color:var(--red)}
 .ta{background:rgba(245,158,11,.15);color:var(--amber)}
 .tst{background:rgba(20,184,166,.15);color:var(--teal)}
+.tcs{background:rgba(59,130,246,.15);color:var(--blue)}
 hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 .habit-row{display:grid;grid-template-columns:20px 1fr repeat(7,32px);align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid var(--bdr)}
 .habit-row:last-child{border-bottom:none}
@@ -616,6 +617,21 @@ function streakInfo(habit){
   return{max:maxStreak,start:bestStart,end:bestEnd};
 }
 function longestStreak(habit){return streakInfo(habit).max;}
+function currentStreak(habit){
+  var prefix=habit.id+'_';
+  var d=new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate());
+  var todayState=logs[prefix+TODAY];
+  if(todayState&&!isWin(habit,todayState))return 0; // logged a loss today, streak is dead
+  if(!todayState)d.setDate(d.getDate()-1); // today not logged yet — don't break it, start from yesterday
+  var count=0;
+  while(true){
+    var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    var state=logs[prefix+ds];
+    if(state&&isWin(habit,state)){count++;d.setDate(d.getDate()-1);}
+    else break;
+  }
+  return count;
+}
 function formatDateShort(ds){
   return new Date(ds).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
@@ -961,13 +977,14 @@ function renderHabits(){
       return '<div class="'+cls+'" onclick="cycleDot(\''+h.id+'\',\''+ds+'\').then(function(){renderHabits();renderDash();})">'+lbl+'</div>';
     }).join('');
     var streak=longestStreak(h);
-    var streakTxt='Best streak '+streak+'d';
+    var curStreak=currentStreak(h);
     return '<div class="habit-row" data-hid="'+h.id+'" draggable="true" ondragstart="onDragStart(event,\''+h.id+'\')" ondragend="onDragEnd(event)">'+
       '<span class="drag-handle">⠿</span>'+
       '<div>'+
         '<div style="display:flex;align-items:center;gap:7px;margin-bottom:2px">'+
           '<button class="hname-btn" onclick="openHabitModal(\''+h.id+'\')">'+h.name+'</button>'+
-          (streak>0?'<span class="tag tst">'+streakTxt+'</span>':'')+
+          (curStreak>0?'<span class="tag tcs">Current streak '+curStreak+'d</span>':'')+
+          (streak>0?'<span class="tag tst">Best streak '+streak+'d</span>':'')+
         '</div>'+
         '<div class="hmeta">'+(h.dir==='increase'?'Goal':'Limit')+': '+h.target+'x/wk · '+h.cat+'</div>'+
         '<div class="hbar"><div class="hbar-fill '+stats.status+'" style="width:'+(stats.pct||0)+'%"></div></div>'+
