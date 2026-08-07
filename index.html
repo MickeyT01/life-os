@@ -585,8 +585,6 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 
 <script>
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const ICON_CHECK='<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg>';
-const ICON_X='<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 const NOW=new Date();
 const TODAY_IDX=(NOW.getDay()+6)%7;
 const TODAY=NOW.toISOString().split('T')[0];
@@ -1032,7 +1030,7 @@ function renderHabits(){
       if(isFut)cls='dot future';
       else if(state)cls=win?'dot green':'dot red';
       else if(isT)cls='dot today';
-      var lbl=state?(win?ICON_CHECK:ICON_X):DAYS[i][0];
+      var lbl=state==='yes'?'Y':state==='no'?'N':DAYS[i][0];
       return '<div class="'+cls+'" onclick="cycleDot(\''+h.id+'\',\''+ds+'\').then(function(){renderHabits();renderDash();})">'+lbl+'</div>';
     }).join('');
     var streak=longestStreak(h);
