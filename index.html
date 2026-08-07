@@ -39,7 +39,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 *{scrollbar-width:thin;scrollbar-color:var(--sur3) transparent}
 .shell{display:flex;min-height:100vh}
 .sidebar{display:none}
-.main{flex:1;overflow-y:auto;padding-bottom:140px;width:100%}
+.main{flex:1;overflow-y:auto;padding-bottom:100px;width:100%}
 .page{display:none;padding:32px 36px 20px;max-width:1040px;margin:0 auto}
 .page.active{display:block;animation:pageIn .38s cubic-bezier(.2,.7,.3,1)}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -82,16 +82,17 @@ textarea{resize:vertical;min-height:72px}
 .tabs{display:flex;gap:2px;background:var(--sur);border:1px solid var(--bdr);padding:3px;border-radius:8px;width:fit-content;flex-wrap:wrap}
 .tab{padding:6px 16px;border-radius:6px;border:none;background:none;font-size:12px;font-weight:500;color:var(--txt3);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
 .tab.active{background:var(--sur3);color:var(--txt);border:1px solid var(--bdr2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)}
-.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .tg{background:rgba(34,197,94,.15);color:var(--green)}
 .tr{background:rgba(239,68,68,.15);color:var(--red)}
 .ta{background:rgba(245,158,11,.15);color:var(--amber)}
-.tst{background:rgba(20,184,166,.15);color:var(--teal);box-shadow:inset 0 0 0 1px rgba(20,184,166,.25)}
-.tcs{background:rgba(59,130,246,.15);color:var(--blue);box-shadow:inset 0 0 0 1px rgba(59,130,246,.25)}
+.tst{background:rgba(20,184,166,.15);color:var(--teal);box-shadow:inset 0 0 0 1px rgba(20,184,166,.25);padding:1px 5px;font-size:8px;letter-spacing:.1px}
+.tcs{background:rgba(59,130,246,.15);color:var(--blue);box-shadow:inset 0 0 0 1px rgba(59,130,246,.25);padding:1px 5px;font-size:8px;letter-spacing:.1px}
 .tcs.live{animation:tagPulse 1.8s ease-in-out infinite}
 @keyframes tagPulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(59,130,246,.25),0 0 0 rgba(59,130,246,0)}50%{box-shadow:inset 0 0 0 1px rgba(59,130,246,.5),0 0 10px rgba(59,130,246,.35)}}
 hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 .habit-row{display:grid;grid-template-columns:20px 30px 1fr repeat(7,32px);align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid var(--bdr);transition:background .15s}
+.wk-hdr{display:grid;grid-template-columns:20px 30px 1fr repeat(7,32px);align-items:center;gap:8px}
 .habit-row:hover{background:rgba(255,255,255,.015)}
 .habit-row:last-child{border-bottom:none}
 .drag-handle{color:var(--txt3);cursor:grab;font-size:13px;user-select:none}
@@ -194,13 +195,12 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 .saving-ind{position:fixed;top:12px;right:16px;font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
 .saving-ind.show{opacity:1}
 #mass-bar{display:none;background:var(--blue-dim);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:10px 14px;margin-bottom:10px;align-items:center;gap:10px;font-size:12px}
-.ib{background:var(--sur);border-top:2px solid var(--blue);position:fixed;bottom:0;right:0;left:0;z-index:100;height:46px;overflow:hidden;transition:height .3s ease;box-shadow:0 -4px 20px rgba(0,0,0,.3);padding-bottom:env(safe-area-inset-bottom)}
-.ib.open{height:300px}
-.ib-head{display:flex;align-items:center;gap:10px;padding:0 20px;height:46px;cursor:pointer;user-select:none}
+.ai-fab{position:fixed;left:calc(16px + env(safe-area-inset-left));bottom:calc(78px + env(safe-area-inset-bottom));z-index:160;width:50px;height:50px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(59,130,246,.4);transition:transform .15s}
+.ai-fab:hover{transform:scale(1.06)}
+.ai-fab:active{transform:scale(.96)}
 .pulse{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
-.ib-body{padding:0 20px 14px;height:254px;display:flex;flex-direction:column}
-.ib-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.ib-msgs{display:flex;flex-direction:column;gap:6px}
 .ib-msg{padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.55;max-width:90%}
 .ib-msg.ai{background:var(--sur2);border:1px solid var(--bdr);color:var(--txt)}
 .ib-msg.user{background:var(--blue-dim);border:1px solid rgba(59,130,246,.2);color:var(--txt);align-self:flex-end}
@@ -235,17 +235,28 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 @media(max-width:768px){
   .page{padding:16px}.g2{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}
   .habit-row{grid-template-columns:16px 26px 1fr repeat(7,28px);gap:4px}
+  .wk-hdr{grid-template-columns:16px 26px 1fr repeat(7,28px);gap:4px}
   .dot{width:28px;height:28px;font-size:9px}
   .mring,.mring svg{width:26px;height:26px}
   .modal{width:100%;max-width:100%;border-radius:20px 20px 0 0;position:fixed;bottom:0;max-height:85vh}
   .overlay.open{align-items:flex-end}
   .tabs{width:100%}.tab{flex:1;text-align:center;font-size:11px;padding:6px 8px}
+  .bnav{left:0;right:0;bottom:0;transform:none;width:100%;max-width:100%;border-radius:0;padding:0;background:var(--sur);border:none;border-top:1px solid var(--bdr2);box-shadow:0 -4px 20px rgba(0,0,0,.3);padding-bottom:env(safe-area-inset-bottom)}
+  .bnav-inner{width:100%;height:60px}
+  .bnav-btn{flex:1;min-width:0;border-radius:0;padding:8px 4px}
+  .bnav-btn.active{background:none;color:var(--blue);box-shadow:none}
+  .bnav-btn.active svg{transform:none}
+  .main{padding-bottom:90px}
+  .hmeta{font-size:10px}
+}
+@media(max-width:480px){
+  .habit-row{grid-template-columns:14px 22px 1fr repeat(7,24px);gap:3px}
+  .wk-hdr{grid-template-columns:14px 22px 1fr repeat(7,24px);gap:3px}
+  .dot{width:24px;height:24px;font-size:8px}
+  .mring,.mring svg{width:22px;height:22px}
 }
 @media(max-width:380px){
   .metrics{grid-template-columns:1fr}
-  .habit-row{grid-template-columns:14px 22px 1fr repeat(7,24px);gap:3px}
-  .dot{width:24px;height:24px;font-size:8px}
-  .mring,.mring svg{width:22px;height:22px}
   .fi2{grid-template-columns:1fr}
 }
 </style>
@@ -459,16 +470,21 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
     </div>
   </div>
 
-  <div class="ib" id="ib">
-    <div class="ib-head" onclick="toggleIB()">
-      <div class="pulse"></div>
-      <span style="font-size:12px;font-weight:600;flex:1;color:var(--txt)">AI Insights</span>
-      <svg id="ib-chev" style="width:14px;height:14px;stroke:var(--txt2);fill:none;stroke-width:2.5;stroke-linecap:round;transition:transform .3s" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-    </div>
-    <div class="ib-body">
-      <div class="ib-msgs" id="ib-msgs"></div>
-      <div class="ib-row">
-        <input type="text" id="ib-input" placeholder="Ask about your finances or habits…" onkeydown="if(event.key==='Enter')sendIB()">
+  <button class="ai-fab" id="ai-fab" onclick="toggleIB()" title="AI Insights">
+    <div class="pulse" style="position:absolute;top:7px;right:7px;background:#fff"></div>
+    <svg viewBox="0 0 24 24" style="width:21px;height:21px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+  </button>
+
+  <div class="overlay" id="ai-overlay">
+    <div class="modal" style="width:440px;padding:0;overflow:hidden;display:flex;flex-direction:column;height:68vh;max-height:600px">
+      <div style="display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--bdr);flex-shrink:0">
+        <div class="pulse"></div>
+        <span style="font-size:14px;font-weight:700;flex:1">AI Insights</span>
+        <button class="close-x" onclick="toggleIB()">×</button>
+      </div>
+      <div class="ib-msgs" id="ib-msgs" style="flex:1;padding:16px 18px;overflow-y:auto"></div>
+      <div class="ib-row" style="padding:12px 18px;border-top:1px solid var(--bdr);flex-shrink:0">
+        <input type="text" id="ib-input" placeholder="Ask about your habits…" onkeydown="if(event.key==='Enter')sendIB()">
         <button class="btn btn-blue btn-sm" onclick="sendIB()">Ask</button>
       </div>
     </div>
@@ -905,11 +921,18 @@ async function cycleDot(hid,ds){
 
 // ── NAVIGATION ──
 function go(id,btn){
+  var renders={dashboard:renderDash,habits:renderHabits,finance:function(){renderFinance();populateFilters();},analytics:renderAnalytics,journal:renderJournal};
+  var alreadyActive=document.getElementById('pg-'+id).classList.contains('active');
+  if(alreadyActive){
+    var m=document.querySelector('.main');if(m)m.scrollTo({top:0,behavior:'smooth'});
+    if(renders[id])renders[id]();
+    return;
+  }
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav-btn,.bnav-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('pg-'+id).classList.add('active');
   if(btn)btn.classList.add('active');
-  var renders={dashboard:renderDash,habits:renderHabits,finance:function(){renderFinance();populateFilters();},analytics:renderAnalytics,journal:renderJournal};
+  var m2=document.querySelector('.main');if(m2)m2.scrollTo({top:0});
   if(renders[id])renders[id]();
 }
 
@@ -1002,10 +1025,9 @@ function renderHabits(){
   // Headers: date on top, day letter below
   var hdr=document.getElementById('wk-headers');
   if(hdr){
-    hdr.style.display='grid';
-    hdr.style.gridTemplateColumns='20px 1fr repeat(7,32px)';
-    hdr.style.gap='8px';
-    hdr.innerHTML='<span></span><span></span>'+wd.map(function(d,i){
+    hdr.className='wk-hdr';
+    hdr.style.display='';hdr.style.gridTemplateColumns='';hdr.style.gap='';
+    hdr.innerHTML='<span></span><span></span><span></span>'+wd.map(function(d,i){
       var isToday=d.toISOString().split('T')[0]===TODAY;
       var dateStr=(d.getMonth()+1)+'/'+d.getDate();
       var dayLetter=DAYS[i][0];
@@ -1042,10 +1064,10 @@ function renderHabits(){
       '<div>'+
         '<div style="display:flex;align-items:center;gap:7px;margin-bottom:2px;flex-wrap:wrap;row-gap:3px">'+
           '<button class="hname-btn" onclick="openHabitModal(\''+h.id+'\')">'+h.name+'</button>'+
-          (curStreak>0?'<span class="tag tcs'+(isRecordNow?' live':'')+'">Current streak '+curStreak+'d</span>':'')+
-          (streak>0?'<span class="tag tst">Best streak '+streak+'d</span>':'')+
+          (streak>0?'<span class="tag tst">Best '+streak+'d</span>':'')+
+          (curStreak>0?'<span class="tag tcs'+(isRecordNow?' live':'')+'">Now '+curStreak+'d</span>':'')+
         '</div>'+
-        '<div class="hmeta">'+(h.dir==='increase'?'Goal':'Limit')+': '+h.target+'x/wk · '+h.cat+'</div>'+
+        '<div class="hmeta">'+(h.dir==='increase'?'Goal':'Limit')+': '+h.target+'x/wk</div>'+
         '<div class="hbar"><div class="hbar-fill '+stats.status+'" style="width:'+(stats.pct||0)+'%"></div></div>'+
       '</div>'+
       dots+
@@ -1928,8 +1950,7 @@ async function parseCSV(lines,bank){
 var ibOpen=false;var ibHistory=[];
 function toggleIB(){
   ibOpen=!ibOpen;
-  document.getElementById('ib').classList.toggle('open',ibOpen);
-  document.getElementById('ib-chev').style.transform=ibOpen?'rotate(180deg)':'';
+  document.getElementById('ai-overlay').classList.toggle('open',ibOpen);
   if(ibOpen&&!ibHistory.length)genIB();
 }
 function addIBMsg(text,role){
