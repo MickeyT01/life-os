@@ -236,6 +236,72 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 .sc.n{background:rgba(148,163,184,.14);color:var(--txt2)}
 .sc.mm{outline:2px solid var(--amber);outline-offset:1px}
 @media(max-width:480px){.health{padding:0 10px}.health #health-txt{max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--sur);border:1px solid var(--bdr2);border-radius:14px;padding:4px;margin-bottom:14px}
+.seg-ind{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--teal));box-shadow:0 4px 14px rgba(59,130,246,.35);transition:transform .3s cubic-bezier(.2,.7,.3,1)}
+.seg.later .seg-ind{transform:translateX(100%)}
+.seg-btn{position:relative;z-index:1;border:none;background:none;padding:12px 8px;font-size:14px;font-weight:700;color:var(--txt2);display:flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;transition:color .2s;font-family:'Inter',sans-serif}
+.seg-btn.on{color:#06101c}
+.seg-cnt{font-family:var(--mono);font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;background:rgba(255,255,255,.08)}
+.seg-btn.on .seg-cnt{background:rgba(6,16,28,.18)}
+.seg-over{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px rgba(239,68,68,.7)}
+.todo-add{display:flex;gap:8px;align-items:center;background:var(--sur);border:1px solid var(--bdr2);border-radius:14px;padding:6px 6px 6px 14px;transition:border-color .15s}
+.todo-add:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.todo-add input{border:none;background:none;padding:10px 0;font-size:14px;box-shadow:none!important}
+.todo-add .btn-blue{border-radius:10px;padding:9px 16px;font-size:13px}
+.qd-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.qd{position:relative;padding:6px 12px;border-radius:20px;border:1px solid var(--bdr2);background:var(--sur2);color:var(--txt2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;overflow:hidden}
+.qd.on{background:rgba(59,130,246,.18);color:var(--blue);border-color:rgba(59,130,246,.45)}
+.qd input[type=date]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;padding:0;border:none}
+.qd svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.todo-bar{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 10px;gap:10px}
+.todo-bar h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt3)}
+.filt{display:flex;background:var(--sur);border:1px solid var(--bdr);border-radius:9px;padding:2px}
+.filt button{flex:1;border:none;background:none;padding:6px 12px;font-size:12px;font-weight:600;color:var(--txt3);border-radius:7px;font-family:'Inter',sans-serif;white-space:nowrap}
+.filt button.on{background:var(--sur3);color:var(--txt)}
+.trw{display:flex;align-items:center;background:var(--sur);border:1px solid var(--bdr);border-radius:12px;margin-bottom:6px;min-height:56px;padding:2px 8px 2px 0;transition:opacity .25s,transform .25s,max-height .3s,margin .3s,padding .3s,border-color .2s,min-height .3s;overflow:hidden}
+.trw:hover{border-color:var(--bdr2)}
+.tgrip{width:36px;align-self:stretch;display:flex;align-items:center;justify-content:center;color:var(--txt3);cursor:grab;touch-action:none;flex-shrink:0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tgrip:hover{color:var(--txt2)}
+.tgrip svg{width:10px;height:16px;fill:currentColor}
+.tbub{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:none;background:none;padding:0;cursor:pointer}
+.tbub span{width:22px;height:22px;border-radius:50%;border:2px solid var(--bdr2);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.tbub:hover span{border-color:var(--teal);box-shadow:0 0 0 4px rgba(20,184,166,.12)}
+.tbub svg{width:12px;height:12px;stroke:#06101c;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0;transform:scale(.4);transition:all .2s}
+.trw.done-anim .tbub span,.trw.is-done .tbub span{background:var(--teal);border-color:var(--teal);box-shadow:0 0 12px rgba(20,184,166,.5)}
+.trw.done-anim .tbub svg,.trw.is-done .tbub svg{opacity:1;transform:scale(1)}
+.trw.done-anim .ttl{text-decoration:line-through;color:var(--txt3)}
+.trw.leaving{opacity:0;transform:translateX(28px);max-height:0!important;min-height:0;margin-bottom:0;padding-top:0;padding-bottom:0;border-width:0}
+.tbody{flex:1;min-width:0;padding:9px 4px;cursor:pointer;align-self:stretch;display:flex;flex-direction:column;justify-content:center}
+.ttl{font-size:14px;font-weight:500;line-height:1.4;word-break:break-word;transition:color .2s}
+.is-done .ttl{text-decoration:line-through;color:var(--txt3)}
+.tmeta{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap}
+.due{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--sur3);color:var(--txt2);font-family:var(--mono);white-space:nowrap}
+.due.over{background:rgba(239,68,68,.15);color:var(--red)}
+.due.today{background:rgba(245,158,11,.15);color:var(--amber)}
+.due.tmrw{background:rgba(59,130,246,.15);color:var(--blue)}
+.tnote{font-size:11px;color:var(--txt3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trw.pending{opacity:.55;pointer-events:none}
+.trw.dragging{box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 0 1px rgba(59,130,246,.55);border-color:rgba(59,130,246,.55);transition:none;cursor:grabbing;transform:scale(1.02);background:var(--sur2)}
+.trw.dragging .tgrip{color:var(--blue);cursor:grabbing}
+.trw-ph{border:1.5px dashed rgba(59,130,246,.5);border-radius:12px;margin-bottom:6px;background:rgba(59,130,246,.06)}
+body.drag-lock{user-select:none;-webkit-user-select:none;cursor:grabbing}
+.cgroup{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin:16px 2px 8px}
+.cgroup:first-child{margin-top:0}
+.todo-empty{text-align:center;padding:36px 16px;color:var(--txt3);font-size:13px;line-height:1.6;border:1px dashed var(--bdr2);border-radius:14px}
+.todo-empty strong{display:block;color:var(--txt2);font-size:14px;margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:calc(134px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);z-index:260;background:var(--sur3);border:1px solid var(--bdr2);border-radius:12px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:12px;font-size:13px;box-shadow:0 12px 40px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:92vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast .tmsg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58vw}
+.setup-sql{font-family:var(--mono);font-size:11px;color:var(--txt2);background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:12px;white-space:pre;overflow-x:auto;max-height:220px;margin:12px 0}
+.setup-steps{font-size:13px;color:var(--txt2);line-height:1.8;padding-left:20px;margin:10px 0}
+@media(max-width:768px){
+  input,select,textarea{font-size:16px}
+  .todo-add input{font-size:16px}
+  .ttl{font-size:15px}
+  .trw{min-height:60px}
+  .toast{bottom:calc(78px + env(safe-area-inset-bottom))}
+  .todo-bar h3{font-size:10px}
+}
 #mass-bar{display:none;background:var(--blue-dim);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:10px 14px;margin-bottom:10px;align-items:center;gap:10px;font-size:12px}
 .ai-fab{position:fixed;left:calc(16px + env(safe-area-inset-left));bottom:calc(78px + env(safe-area-inset-bottom));z-index:160;width:50px;height:50px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(59,130,246,.4);transition:transform .15s}
 .ai-fab:hover{transform:scale(1.06)}
@@ -328,13 +394,15 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 
   <button class="health" id="health" onclick="openSettings()" title="Connection status — tap for Settings"><span class="hd"></span><span id="health-txt">Connecting</span></button>
 
+  <div class="toast" id="toast" role="status"><span class="tmsg" id="toast-msg"></span><button class="btn btn-sm" id="toast-undo" onclick="toastUndoClick()" style="color:var(--teal);border-color:rgba(20,184,166,.4)">Undo</button></div>
+
   <nav class="bnav">
     <div class="bnav-inner">
       <button class="bnav-btn active" onclick="go('dashboard',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Home</span></button>
       <button class="bnav-btn" onclick="go('habits',this)"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Habits</span></button>
       <button class="bnav-btn" onclick="go('finance',this)" style="display:none"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finance</span></button>
       <button class="bnav-btn" onclick="go('analytics',this)"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Stats</span></button>
-      <button class="bnav-btn" onclick="go('journal',this)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Journal</span></button>
+      <button class="bnav-btn" id="nav-todo" onclick="go('todo',this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 8 8.5 4.5"/><line x1="12" y1="6.5" x2="21" y2="6.5"/><polyline points="3 13 5 15 8.5 11.5"/><line x1="12" y1="13.5" x2="21" y2="13.5"/><line x1="4" y1="19.5" x2="8" y2="19.5"/><line x1="12" y1="19.5" x2="21" y2="19.5"/></svg><span>To-do</span></button>
       <button class="bnav-btn" id="nav-settings" onclick="go('settings',this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span>Settings</span></button>
     </div>
   </nav>
@@ -351,7 +419,7 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
       <button class="nav-btn" onclick="go('finance',this)" style="display:none"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Finance</button>
       <div class="nav-section">Insights</div>
       <button class="nav-btn" onclick="go('analytics',this)"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics</button>
-      <button class="nav-btn" onclick="go('journal',this)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Journal</button>
+      <button class="nav-btn" onclick="go('todo',this)"><svg viewBox="0 0 24 24"><polyline points="3 6 5 8 8.5 4.5"/><line x1="12" y1="6.5" x2="21" y2="6.5"/><polyline points="3 13 5 15 8.5 11.5"/><line x1="12" y1="13.5" x2="21" y2="13.5"/><line x1="4" y1="19.5" x2="8" y2="19.5"/><line x1="12" y1="19.5" x2="21" y2="19.5"/></svg>To-do</button>
       <div class="nav-bottom">
         <button class="nav-btn" onclick="signOut()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
       </div>
@@ -366,6 +434,7 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
           <div class="card" style="display:none"><div class="ch"><h2>Recent transactions</h2><button class="btn btn-ghost btn-sm" onclick="go('finance',null)">See all →</button></div><div id="d-txns"></div></div>
         </div>
         <div class="card"><div class="ch"><h2>Quick log — <span id="d-day" style="color:var(--blue)"></span></h2></div><div id="d-quicklog" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+        <div class="card" style="margin-top:14px"><div class="ch"><h2>Up next</h2><button class="btn btn-ghost btn-sm" onclick="go('todo',document.getElementById('nav-todo'))">All tasks →</button></div><div id="d-todos"></div></div>
         </div>
       </div>
 
@@ -494,24 +563,48 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
         <div class="card" style="margin-top:14px;display:none"><div class="ch"><h2>Monthly spending trend</h2></div><div id="an-spend"></div></div>
       </div>
 
-      <div id="pg-journal" class="page">
-        <div class="ph"><div class="ph-eye">Reflection</div><h1>Weekly check-in</h1></div>
-        <div class="g2">
-          <div class="card">
-            <div class="ch"><h2>New entry</h2></div>
-            <div class="fl"><label>Biggest win this week</label><textarea id="j-win" placeholder="What went well?"></textarea></div>
-            <div class="fl"><label>Biggest struggle</label><textarea id="j-struggle" placeholder="What was hard?"></textarea></div>
-            <div class="fl"><label>Focus for next week</label><textarea id="j-focus" placeholder="What to improve?"></textarea></div>
-            <div class="fl"><label>Mood (1–10)</label>
-              <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
-                <input type="range" min="1" max="10" value="7" id="j-mood" style="flex:1;accent-color:var(--blue)" oninput="document.getElementById('mood-v').textContent=this.value">
-                <span id="mood-v" style="font-size:22px;font-weight:800;color:var(--blue);min-width:24px">7</span>
-                <span style="font-size:11px;color:var(--txt3)">/10</span>
-              </div>
-            </div>
-            <button class="btn btn-blue" style="width:100%;justify-content:center;margin-top:6px" onclick="saveJournal()">Save entry</button>
+      <div id="pg-todo" class="page">
+        <div class="ph" style="margin-bottom:18px"><div class="ph-eye">Focus</div><h1>To-do</h1></div>
+
+        <div id="todo-setup" class="card" style="display:none">
+          <div class="ch"><h2>One-time setup</h2><span class="tag ta">Needed</span></div>
+          <p style="font-size:13px;color:var(--txt2);line-height:1.6">Your to-do list needs its own table in Supabase. This takes about a minute.</p>
+          <ol class="setup-steps">
+            <li>Tap <strong>Copy setup code</strong>.</li>
+            <li>Open supabase.com, go to your project, then <strong>SQL Editor → New query</strong>.</li>
+            <li>Paste it and click <strong>Run</strong>.</li>
+            <li>Come back and tap <strong>Check again</strong>.</li>
+          </ol>
+          <pre class="setup-sql" id="todo-sql"></pre>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-blue btn-sm" id="copy-sql-btn" onclick="copyText(TODO_SQL,'copy-sql-btn')">Copy setup code</button>
+            <button class="btn btn-sm" onclick="reloadTodos(true)">Check again</button>
           </div>
-          <div class="card"><div class="ch"><h2>Past entries</h2></div><div id="journal-list"></div></div>
+        </div>
+
+        <div id="todo-main">
+          <div class="seg" id="todo-seg" role="tablist">
+            <div class="seg-ind"></div>
+            <button class="seg-btn on" id="seg-now" role="tab" onclick="setTodoList('now')">Now <span class="seg-over" id="seg-over" style="display:none" title="Overdue tasks"></span><span class="seg-cnt" id="seg-now-c">0</span></button>
+            <button class="seg-btn" id="seg-later" role="tab" onclick="setTodoList('later')">Later <span class="seg-cnt" id="seg-later-c">0</span></button>
+          </div>
+
+          <div class="todo-add">
+            <input type="text" id="todo-input" placeholder="Add something to do now…" enterkeyhint="done" autocomplete="off" maxlength="300" onkeydown="if(event.key==='Enter'){event.preventDefault();addTodo();}">
+            <button class="btn btn-blue btn-sm" onclick="addTodo()">Add</button>
+          </div>
+          <div class="qd-row" id="qd-row">
+            <button class="qd" id="qd-today" onclick="setQuickDue('today')">Today</button>
+            <button class="qd" id="qd-tmrw" onclick="setQuickDue('tomorrow')">Tomorrow</button>
+            <label class="qd" id="qd-pick"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="qd-pick-lbl">Pick date</span><input type="date" id="qd-date" onchange="setQuickDue(this.value)"></label>
+          </div>
+
+          <div class="todo-bar">
+            <h3 id="todo-bar-lbl">Priority order</h3>
+            <div class="filt"><button id="f-active" class="on" onclick="setTodoFilter('active')">Active</button><button id="f-done" onclick="setTodoFilter('done')">Completed<span id="f-done-c"></span></button></div>
+          </div>
+          <div id="todo-list"></div>
+          <div id="todo-hint" class="tdetail" style="text-align:center;margin-top:12px"></div>
         </div>
       </div>
 
@@ -681,6 +774,20 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
   <button class="btn btn-blue" style="width:100%;justify-content:center" onclick="applyInlineCat()">Apply</button>
 </div></div>
 
+<div class="overlay" id="m-todo"><div class="modal">
+  <div class="mh"><h2>Edit task</h2><button class="close-x" onclick="cm('m-todo')">×</button></div>
+  <input type="hidden" id="td-id">
+  <div class="fl"><label>Task</label><input type="text" id="td-title" maxlength="300" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTodoEdit();}"></div>
+  <div class="fl"><label>Notes</label><textarea id="td-notes" placeholder="Details, links, anything…"></textarea></div>
+  <div class="fl"><label>List</label><div class="filt" id="td-list"><button type="button" data-v="now" onclick="setEditList('now')">Now</button><button type="button" data-v="later" onclick="setEditList('later')">Later</button></div></div>
+  <div class="fl"><label>Due date</label><div style="display:flex;gap:8px;align-items:center"><input type="date" id="td-due"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('td-due').value=''">Clear</button></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+    <button class="btn btn-blue" style="flex:1;justify-content:center;min-width:120px" onclick="saveTodoEdit()">Save</button>
+    <button class="btn" id="td-top-btn" onclick="moveTodoTop()">Move to top</button>
+    <button class="btn btn-ghost" style="color:var(--red)" onclick="deleteTodo()">Delete</button>
+  </div>
+</div></div>
+
 <div class="overlay" id="m-error"><div class="modal" style="width:440px">
   <div class="mh"><div style="display:flex;align-items:center;gap:10px;min-width:0"><span class="err-badge" id="err-code">LOS-000</span><h2 id="err-title">Error</h2></div><button class="close-x" onclick="cm('m-error')">×</button></div>
   <div class="err-where">While: <span id="err-context"></span></div>
@@ -695,7 +802,7 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 </div></div>
 
 <script>
-const APP_VERSION='2.4.0 · 2026-09-21';
+const APP_VERSION='2.5.0 · 2026-09-21';
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const NOW=new Date();
 const TODAY_IDX=(NOW.getDay()+6)%7;
@@ -736,7 +843,7 @@ var ERROR_CODES={
   'LOS-130':{title:'Missing unique rule',what:'The table has no unique rule matching this save, so every save of this kind fails.',fix:'Run fix 6a in supabase-diagnostics.sql (UNIQUE habit_id, log_date).'},
   'LOS-131':{title:'Duplicate rows',what:'The same habit and day is stored more than once, so the app cannot tell which one is right.',fix:'Run fix 6a in supabase-diagnostics.sql to remove duplicates and prevent new ones.'},
   'LOS-132':{title:'Duplicate key',what:'A unique rule rejected the row because an identical one already exists.',fix:'Tap Reload from Supabase in Settings, then try again.'},
-  'LOS-140':{title:'Table or column missing',what:'The app used a table or column that does not exist in your database.',fix:'Copy the details and send them to me. The table layout needs a small change.'},
+  'LOS-140':{title:'Table or column missing',what:'The app used a table or column that does not exist in your database.',fix:'If the details mention todos, open the To-do tab and follow the one-time setup. Otherwise copy the details and send them to me.'},
   'LOS-141':{title:'Linked record missing',what:'This save points at a record, such as a habit, that no longer exists.',fix:'Restart the app. If the habit was deleted on another device, this is expected.'},
   'LOS-150':{title:'Save not confirmed',what:'Supabase reported success, but reading the row back showed something different.',fix:'The screen now shows what is really stored. Run the tests in Settings and send me the results.'},
   'LOS-151':{title:'Could not verify save',what:'The save went through, but the app could not read it back to confirm it.',fix:'Tap Reload from Supabase in Settings to see what is stored.'},
@@ -878,6 +985,7 @@ function rerenderActive(){
   }
   else if(id==='analytics')renderAnalytics();
   else if(id==='settings')renderSettings();
+  else if(id==='todo')renderTodos();
 }
 
 // Replace what's on screen with exactly what Supabase holds.
@@ -897,7 +1005,7 @@ async function refreshLogs(){
 }
 
 // ── SETTINGS: CONNECTION TESTS ──
-var ALL_TABLES=['habits','habit_logs','transactions','bills','incomes','savings','journal','rules','merchant_cats','bill_paid','budget_settings'];
+var ALL_TABLES=['habits','habit_logs','transactions','bills','incomes','savings','todos','rules','merchant_cats','bill_paid','budget_settings'];
 var PROBE_DATE='1970-01-01';
 var TESTS=[
   {id:'app',name:'App version & date'},
@@ -907,6 +1015,7 @@ var TESTS=[
   {id:'logwrite',name:'Habit log: save → read back → clear'},
   {id:'unique',name:'One log per habit per day'},
   {id:'otherwrite',name:'General save & delete (rules table)'},
+  {id:'todowrite',name:'To-do: add → complete → delete'},
   {id:'fullload',name:'Every stored log loads'},
   {id:'screen',name:'Screen matches Supabase'}
 ];
@@ -954,7 +1063,7 @@ async function runAllTests(){
       var netOk=await testNet(ctx);
       var authOk=netOk&&await testAuth(ctx);
       if(!authOk){
-        ['auth','read','logwrite','unique','otherwrite','fullload','screen'].forEach(function(id){
+        ['auth','read','logwrite','unique','otherwrite','todowrite','fullload','screen'].forEach(function(id){
           if(id==='auth'&&!netOk)setTest(id,'fail','Skipped: no connection to Supabase.','LOS-100');
           else if(id!=='auth')setTest(id,'fail','Skipped: '+(netOk?'not signed in.':'no connection to Supabase.'),netOk?'LOS-111':'LOS-100');
         });
@@ -963,6 +1072,7 @@ async function runAllTests(){
         await testLogWrite(ctx);
         await testUnique(ctx);
         await testOtherWrite(ctx);
+        await testTodoWrite(ctx);
         await testFullLoad(ctx);
         await testScreen(ctx);
       }
@@ -1095,6 +1205,24 @@ async function testOtherWrite(){
   var chk=await sb.from('rules').select('keyword').eq('keyword',kw).eq('user_id',UID);
   if(!chk.error&&chk.data.length){setTest('otherwrite','warn','Saving works, but the test entry could not be deleted. Remove the rule named '+kw+' in Finance → Rules.','LOS-120');return;}
   setTest('otherwrite','pass','Saving and deleting a regular record works');
+}
+
+async function testTodoWrite(){
+  setTest('todowrite','run');
+  var ins=await sb.from('todos').insert({user_id:UID,title:'__lifeos_test__',list:'later',position:999999}).select();
+  if(ins.error){
+    if(isMissingTable(ins.error)){setTest('todowrite','fail','The todos table has not been created yet. Open the To-do tab and follow the one-time setup.','LOS-140');return;}
+    failTest('todowrite',ins.error,'Add');return;
+  }
+  var row=ins.data&&ins.data[0];
+  if(!row){setTest('todowrite','fail','The task was sent but Supabase did not return it.','LOS-150');await sb.from('todos').delete().eq('title','__lifeos_test__').eq('user_id',UID);return;}
+  var up=await sb.from('todos').update({completed_at:new Date().toISOString()}).eq('id',row.id).select();
+  var upFail=up.error?failTest('todowrite',up.error,'Complete'):null;
+  if(!up.error&&(!up.data.length||!up.data[0].completed_at)){setTest('todowrite','fail','Completing a task was not confirmed by Supabase.','LOS-150');upFail=true;}
+  var del=await sb.from('todos').delete().eq('id',row.id).select();
+  if(del.error){failTest('todowrite',del.error,'Delete');return;}
+  if(!del.data||!del.data.length){setTest('todowrite','warn','Adding works, but the test task could not be deleted. Delete "__lifeos_test__" from Later.','LOS-120');return;}
+  if(!upFail)setTest('todowrite','pass','Add, complete and delete all confirmed by Supabase');
 }
 
 async function testFullLoad(ctx){
@@ -1349,6 +1477,7 @@ function loadLocalData(){
   var savedBudget=LS('los_budget');
   budget=savedBudget||{mode:'pct',pct:10,fixed:0,savGoalAmount:0,savGoalName:''};
   customCats=LS('los_custom_cats')||[];
+  todos=LS('los_todos')||[];
   if(!bills.length)seedLocalBills();
   if(!incomes.length)seedLocalIncome();
 }
@@ -1358,6 +1487,7 @@ function saveLocal(){
   SS('los_fixed',bills);SS('los_incomes',incomes);SS('los_savings',savings);
   SS('los_journal',journal);SS('los_rules',rules);SS('los_mcats',mCats);
   SS('los_bpaid',billPaid);SS('los_budget',budget);SS('los_custom_cats',customCats);
+  saveLocalTodos();
 }
 
 function seedLocalBills(){
@@ -1431,7 +1561,7 @@ async function initApp(user){
 }
 
 async function loadAllData(){
-  var labels=['habits','habit_logs','transactions','bills','incomes','savings','journal','rules','merchant_cats','bill_paid','budget_settings'];
+  var labels=['habits','habit_logs','transactions','bills','incomes','savings','todos','rules','merchant_cats','bill_paid','budget_settings'];
   var results=await Promise.all([
     sb.from('habits').select('*').eq('user_id',UID).order('sort_order'),
     fetchAll(function(){return sb.from('habit_logs').select('*').eq('user_id',UID);},[['log_date'],['habit_id']]),
@@ -1439,7 +1569,7 @@ async function loadAllData(){
     sb.from('bills').select('*').eq('user_id',UID),
     sb.from('incomes').select('*').eq('user_id',UID),
     sb.from('savings').select('*').eq('user_id',UID).order('month'),
-    sb.from('journal').select('*').eq('user_id',UID).order('entry_date',{ascending:false}),
+    fetchAll(function(){return sb.from('todos').select('*').eq('user_id',UID);},[['position'],['created_at']]),
     sb.from('rules').select('*').eq('user_id',UID),
     sb.from('merchant_cats').select('*').eq('user_id',UID),
     sb.from('bill_paid').select('*').eq('user_id',UID),
@@ -1448,7 +1578,10 @@ async function loadAllData(){
 
   var failed=[];
   results.forEach(function(r,i){
-    if(r.error){console.error('[LifeOS] load '+labels[i]+' failed',r.error);failed.push({name:labels[i],err:r.error});}
+    if(r.error){
+      if(labels[i]==='todos'&&isMissingTable(r.error))return; // handled by the To-do setup card
+      console.error('[LifeOS] load '+labels[i]+' failed',r.error);failed.push({name:labels[i],err:r.error});
+    }
   });
   var cs=document.getElementById('conn-status');
   if(cs){
@@ -1463,7 +1596,8 @@ async function loadAllData(){
   bills=results[3].data||[];
   incomes=(results[4].data||[]).map(function(i){return Object.assign({},i,{monthly:parseFloat(i.monthly)});});
   savings=results[5].data||[];
-  journal=results[6].data||[];
+  if(results[6].error){TODO_SETUP_NEEDED=isMissingTable(results[6].error);todos=[];}
+  else{TODO_SETUP_NEEDED=false;todos=results[6].data||[];}
   rules=results[7].data||[];
   mCats={};(results[8].data||[]).forEach(function(m){mCats[m.merchant]=m.cat;});
   billPaid={};(results[9].data||[]).forEach(function(b){billPaid[b.bill_id+'_'+b.month]=b.paid;});
@@ -1583,7 +1717,7 @@ async function cycleDot(hid,ds){
 
 // ── NAVIGATION ──
 function go(id,btn){
-  var renders={dashboard:renderDash,habits:renderHabits,finance:function(){renderFinance();populateFilters();},analytics:renderAnalytics,journal:renderJournal,settings:renderSettings};
+  var renders={dashboard:renderDash,habits:renderHabits,finance:function(){renderFinance();populateFilters();},analytics:renderAnalytics,todo:renderTodos,settings:renderSettings};
   var alreadyActive=document.getElementById('pg-'+id).classList.contains('active');
   if(alreadyActive){
     var m=document.querySelector('.main');if(m)m.scrollTo({top:0,behavior:'smooth'});
@@ -2554,6 +2688,7 @@ function renderDash(){
     var lbl=state==='yes'?'Y · '+h.name:state==='no'?'N · '+h.name:h.name;
     return '<button class="btn btn-sm" style="'+style+'" onclick="cycleDot(\''+h.id+'\',\''+TODAY+'\').then(function(){renderDash();})">'+lbl+'</button>';
   }).join('');
+  renderDashTodos();
 }
 
 // ── ANALYTICS ──
@@ -2584,37 +2719,386 @@ function renderAnalytics(){
   }).join('')||'<div class="empty">No spending data yet.</div>';
 }
 
-// ── JOURNAL ──
-function renderJournal(){
-  var el=document.getElementById('journal-list');if(!el)return;
-  el.innerHTML=journal.slice(0,10).map(function(e){
-    return '<div style="padding:14px 0;border-bottom:1px solid var(--bdr)">'+
-      '<div style="font-size:11px;color:var(--txt3);margin-bottom:6px;font-weight:500">'+(e.entry_date||e.date)+' · mood '+e.mood+'/10</div>'+
-      (e.win?'<div style="display:flex;gap:8px;margin-bottom:4px;font-size:13px;color:var(--txt2)"><svg style="width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;margin-top:2px" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'+e.win+'</div>':'')+
-      (e.struggle?'<div style="display:flex;gap:8px;margin-bottom:4px;font-size:13px;color:var(--txt2)"><svg style="width:14px;height:14px;stroke:var(--amber);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;margin-top:2px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'+e.struggle+'</div>':'')+
-      (e.focus?'<div style="display:flex;gap:8px;font-size:13px;color:var(--txt2)"><svg style="width:14px;height:14px;stroke:var(--teal);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;margin-top:2px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+e.focus+'</div>':'')+
-    '</div>';
-  }).join('')||'<div class="empty">No entries yet.</div>';
+// ── TO-DO ──
+var todos=[],TODO_SETUP_NEEDED=false,todoView={list:'now',filter:'active'},quickDue=null,editList='now';
+var TODO_SQL=[
+"-- Life OS: to-do table (run once in Supabase → SQL Editor)",
+"create table if not exists public.todos (",
+"  id uuid primary key default gen_random_uuid(),",
+"  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,",
+"  title text not null,",
+"  notes text default '',",
+"  list text not null default 'now' check (list in ('now','later')),",
+"  due_date date,",
+"  position double precision not null default 0,",
+"  completed_at timestamptz,",
+"  created_at timestamptz not null default now(),",
+"  updated_at timestamptz not null default now()",
+");",
+"create index if not exists todos_user_list_pos on public.todos (user_id, list, position);",
+"alter table public.todos enable row level security;",
+"drop policy if exists todos_select on public.todos;",
+"drop policy if exists todos_insert on public.todos;",
+"drop policy if exists todos_update on public.todos;",
+"drop policy if exists todos_delete on public.todos;",
+"create policy todos_select on public.todos for select using (auth.uid() = user_id);",
+"create policy todos_insert on public.todos for insert with check (auth.uid() = user_id);",
+"create policy todos_update on public.todos for update using (auth.uid() = user_id) with check (auth.uid() = user_id);",
+"create policy todos_delete on public.todos for delete using (auth.uid() = user_id);"
+].join('\n');
+
+function isMissingTable(err){
+  var c=String(err&&err.code||''),m=String(err&&err.message||'').toLowerCase();
+  return c==='42P01'||c==='PGRST205'||(m.indexOf('todos')>=0&&(m.indexOf('does not exist')>=0||m.indexOf('could not find')>=0));
+}
+function sortByPos(a,b){return (a.position-b.position)||(String(a.created_at)<String(b.created_at)?-1:1);}
+function activeTodos(list){return todos.filter(function(t){return t.list===list&&!t.completed_at;}).sort(sortByPos);}
+function doneTodos(list){return todos.filter(function(t){return t.list===list&&t.completed_at;}).sort(function(a,b){return a.completed_at<b.completed_at?1:-1;});}
+function saveLocalTodos(){SS('los_todos',todos.filter(function(t){return !t._pending;}));}
+function topPosition(list){var a=activeTodos(list);return a.length?a[0].position-1:0;}
+
+function dueInfo(ds){
+  if(!ds)return null;
+  var d=parseYMD(ds),tm=ymd(new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate()+1));
+  var label=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if(ds<TODAY)return{cls:'over',txt:'Overdue · '+label};
+  if(ds===TODAY)return{cls:'today',txt:'Today'};
+  if(ds===tm)return{cls:'tmrw',txt:'Tomorrow'};
+  var diff=Math.round((d-parseYMD(TODAY))/86400000);
+  return{cls:'',txt:diff<7?d.toLocaleDateString('en-US',{weekday:'short'})+' · '+label:label};
+}
+function dayLabel(iso){
+  var ds=ymd(new Date(iso)),yd=ymd(new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate()-1));
+  if(ds===TODAY)return'Today';
+  if(ds===yd)return'Yesterday';
+  return parseYMD(ds).toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
 }
 
-async function saveJournal(){
-  var win=document.getElementById('j-win').value.trim();
-  var struggle=document.getElementById('j-struggle').value.trim();
-  var focus=document.getElementById('j-focus').value.trim();
-  if(!win&&!struggle&&!focus)return;
-  var entry={win:win,struggle:struggle,focus:focus,mood:+document.getElementById('j-mood').value};
-  if(IS_LIVE){
-    showSaving();
-    var r=await sb.from('journal').insert(Object.assign({user_id:UID,entry_date:TODAY},entry)).select();
-    if(!dbCheck(r,'Saving journal entry'))return;
-    clearDbError();
-    journal=[r.data[0]].concat(journal);
-  } else {
-    journal=[Object.assign({id:'j'+Date.now(),entry_date:TODAY},entry)].concat(journal);saveLocal();
-  }
-  ['j-win','j-struggle','j-focus'].forEach(function(id){document.getElementById(id).value='';});
-  renderJournal();
+var GRIP_SVG='<svg viewBox="0 0 10 16"><circle cx="2.5" cy="2.5" r="1.5"/><circle cx="7.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="8" r="1.5"/><circle cx="7.5" cy="8" r="1.5"/><circle cx="2.5" cy="13.5" r="1.5"/><circle cx="7.5" cy="13.5" r="1.5"/></svg>';
+var CHECK_SVG='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function todoRow(t,opts){
+  opts=opts||{};
+  var done=!!t.completed_at,di=dueInfo(t.due_date),meta='';
+  if(di&&!done)meta+='<span class="due '+di.cls+'">'+di.txt+'</span>';
+  if(done)meta+='<span class="due">Done '+new Date(t.completed_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</span>';
+  var note=t.notes?'<div class="tnote">'+esc(String(t.notes).split('\n')[0])+'</div>':'';
+  var grip=opts.grip?'<div class="tgrip" onpointerdown="gripDown(event,\''+t.id+'\')" title="Drag to change priority" aria-label="Drag to change priority">'+GRIP_SVG+'</div>':'<div style="width:8px;flex-shrink:0"></div>';
+  return '<div class="trw'+(done?' is-done':'')+(t._pending?' pending':'')+'" data-tid="'+t.id+'">'+grip+
+    '<button class="tbub" onclick="event.stopPropagation();'+(done?'uncompleteTodo':'completeTodo')+'(\''+t.id+'\')" aria-label="'+(done?'Mark as not done':'Complete task')+'"><span>'+CHECK_SVG+'</span></button>'+
+    '<div class="tbody" onclick="openTodoEdit(\''+t.id+'\')"><div class="ttl">'+esc(t.title)+'</div>'+
+    (meta?'<div class="tmeta">'+meta+'</div>':'')+note+'</div></div>';
 }
+
+function renderTodos(){
+  if(!document.getElementById('pg-todo'))return;
+  var L=todoView.list,now=activeTodos('now'),later=activeTodos('later');
+  var overdue=now.concat(later).filter(function(t){return t.due_date&&t.due_date<TODAY;}).length;
+  document.getElementById('seg-now-c').textContent=now.length;
+  document.getElementById('seg-later-c').textContent=later.length;
+  document.getElementById('seg-over').style.display=overdue?'':'none';
+  document.getElementById('todo-seg').classList.toggle('later',L==='later');
+  document.getElementById('seg-now').classList.toggle('on',L==='now');
+  document.getElementById('seg-later').classList.toggle('on',L==='later');
+
+  document.getElementById('todo-setup').style.display=TODO_SETUP_NEEDED?'block':'none';
+  document.getElementById('todo-main').style.display=TODO_SETUP_NEEDED?'none':'block';
+  if(TODO_SETUP_NEEDED){document.getElementById('todo-sql').textContent=TODO_SQL;return;}
+
+  document.getElementById('todo-input').placeholder=L==='now'?'Add something to do now…':'Add something for later…';
+  document.getElementById('qd-row').style.display=L==='now'?'flex':'none';
+  var tm=ymd(new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate()+1));
+  document.getElementById('qd-today').classList.toggle('on',quickDue===TODAY);
+  document.getElementById('qd-tmrw').classList.toggle('on',quickDue===tm);
+  var custom=quickDue&&quickDue!==TODAY&&quickDue!==tm;
+  document.getElementById('qd-pick').classList.toggle('on',!!custom);
+  document.getElementById('qd-pick-lbl').textContent=custom?parseYMD(quickDue).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'Pick date';
+
+  var done=doneTodos(L);
+  document.getElementById('f-active').classList.toggle('on',todoView.filter==='active');
+  document.getElementById('f-done').classList.toggle('on',todoView.filter==='done');
+  document.getElementById('f-done-c').textContent=done.length?' '+done.length:'';
+
+  var el=document.getElementById('todo-list'),hint=document.getElementById('todo-hint');
+  if(todoView.filter==='active'){
+    var act=L==='now'?now:later;
+    document.getElementById('todo-bar-lbl').textContent='Priority order';
+    el.innerHTML=act.length?act.map(function(t){return todoRow(t,{grip:true});}).join(''):
+      '<div class="todo-empty"><strong>'+(L==='now'?'Nothing urgent':'Nothing parked yet')+'</strong>'+
+      (L==='now'?'Add what needs doing soon. Give it a date if it has a deadline.':'Ideas and someday tasks go here, out of the way of what matters now.')+'</div>';
+    hint.textContent=act.length>1?'Drag the ⠿ handle to reorder. Top is most important.':'';
+  } else {
+    document.getElementById('todo-bar-lbl').textContent='Completed';
+    if(!done.length){
+      el.innerHTML='<div class="todo-empty"><strong>No completed tasks</strong>Tap the circle next to a task to finish it.</div>';
+    } else {
+      var html='',last='';
+      done.forEach(function(t){var g=dayLabel(t.completed_at);if(g!==last){html+='<div class="cgroup">'+g+'</div>';last=g;}html+=todoRow(t,{});});
+      html+='<div style="text-align:center;margin-top:12px"><button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="clearCompleted()">Clear completed</button></div>';
+      el.innerHTML=html;
+    }
+    hint.textContent=done.length?'Tap a filled circle to move a task back.':'';
+  }
+}
+
+function renderDashTodos(){
+  var el=document.getElementById('d-todos');if(!el)return;
+  if(TODO_SETUP_NEEDED){el.innerHTML='<div class="empty" style="padding:14px">Finish the one-time setup on the To-do tab.</div>';return;}
+  var all=activeTodos('now'),top=all.slice(0,3),more=all.length-top.length;
+  el.innerHTML=top.length
+    ?top.map(function(t){return todoRow(t,{});}).join('')+(more>0?'<div class="tdetail" style="padding:6px 2px 0">+'+more+' more in Now</div>':'')
+    :'<div class="empty" style="padding:14px">Nothing urgent right now.</div>';
+}
+
+function setTodoList(l){if(todoView.list===l)return;todoView.list=l;renderTodos();}
+function setTodoFilter(f){todoView.filter=f;renderTodos();}
+function setQuickDue(v){
+  var tm=ymd(new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate()+1));
+  var ds=v==='today'?TODAY:v==='tomorrow'?tm:(v||null);
+  quickDue=(quickDue===ds)?null:ds;
+  document.getElementById('qd-date').value='';
+  renderTodos();
+}
+
+// Optimistic update with rollback. Supabase must return the saved row,
+// which proves the change is stored.
+async function updateTodo(t,patch,context){
+  var before={};Object.keys(patch).forEach(function(k){before[k]=t[k];});
+  Object.assign(t,patch);
+  if(!IS_LIVE){saveLocalTodos();return true;}
+  setHealth('busy','Saving');
+  var r;
+  try{r=await sb.from('todos').update(Object.assign({},patch,{updated_at:new Date().toISOString()})).eq('id',t.id).select();}
+  catch(e){r={error:{message:(e&&e.message)||'Network error'}};}
+  var ok=dbCheck(r,context);
+  if(ok&&(!r.data||!r.data.length)){reportError(context,{code:'MISMATCH',message:'Supabase did not return the task after saving, so the change is not confirmed.'});ok=false;}
+  if(!ok){Object.assign(t,before);renderTodos();renderDashTodos();return false;}
+  Object.assign(t,r.data[0]);
+  flashVerified(true);
+  return true;
+}
+
+async function addTodo(){
+  var inp=document.getElementById('todo-input'),title=inp.value.trim();
+  if(!title)return;
+  if(TODO_SETUP_NEEDED){renderTodos();return;}
+  var list=todoView.list,due=list==='now'?quickDue:null,pos=topPosition(list);
+  var tmp={id:'tmp-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),title:title,notes:'',list:list,due_date:due,position:pos,completed_at:null,created_at:new Date().toISOString(),_pending:true};
+  todos.push(tmp);
+  inp.value='';quickDue=null;todoView.filter='active';
+  renderTodos();renderDashTodos();
+  inp.focus();
+  if(!IS_LIVE){tmp.id='t'+Date.now();delete tmp._pending;saveLocalTodos();renderTodos();renderDashTodos();return;}
+  setHealth('busy','Saving');
+  var r;
+  try{r=await sb.from('todos').insert({user_id:UID,title:title,notes:'',list:list,due_date:due,position:pos}).select();}
+  catch(e){r={error:{message:(e&&e.message)||'Network error'}};}
+  var ok=dbCheck(r,'Adding task');
+  if(ok&&(!r.data||!r.data.length)){reportError('Adding task',{code:'MISMATCH',message:'The task was sent but Supabase did not return it, so it is not confirmed.'});ok=false;}
+  if(!ok){
+    todos=todos.filter(function(t){return t!==tmp;});
+    if(!inp.value)inp.value=title;   // give the text back so nothing is lost
+    renderTodos();renderDashTodos();return;
+  }
+  Object.assign(tmp,r.data[0]);delete tmp._pending;
+  renderTodos();renderDashTodos();flashVerified(true);
+}
+
+function completeTodo(id){
+  var t=todos.find(function(x){return x.id===id;});if(!t||t._pending||t.completed_at)return;
+  var rows=[].slice.call(document.querySelectorAll('[data-tid="'+id+'"]'));
+  rows.forEach(function(r){r.style.maxHeight=r.offsetHeight+'px';r.classList.add('done-anim');});
+  if(navigator.vibrate)navigator.vibrate(8);
+  setTimeout(function(){rows.forEach(function(r){r.classList.add('leaving');});},280);
+  setTimeout(function(){
+    var p=updateTodo(t,{completed_at:new Date().toISOString()},'Completing task');
+    renderTodos();renderDashTodos();
+    showToast('Completed “'+t.title+'”',function(){uncompleteTodo(id);});
+    p.then(function(ok){if(!ok)hideToast();});
+  },560);
+}
+
+async function uncompleteTodo(id){
+  var t=todos.find(function(x){return x.id===id;});if(!t||!t.completed_at)return;
+  var rows=[].slice.call(document.querySelectorAll('[data-tid="'+id+'"]'));
+  rows.forEach(function(r){r.style.maxHeight=r.offsetHeight+'px';r.classList.add('leaving');});
+  await new Promise(function(res){setTimeout(res,rows.length?260:0);});
+  var p=updateTodo(t,{completed_at:null},'Restoring task');
+  renderTodos();renderDashTodos();
+  var ok=await p;
+  if(ok)showToast('Moved back to '+(t.list==='now'?'Now':'Later'));
+}
+
+function openTodoEdit(id){
+  var t=todos.find(function(x){return x.id===id;});if(!t||t._pending)return;
+  document.getElementById('td-id').value=id;
+  document.getElementById('td-title').value=t.title;
+  document.getElementById('td-notes').value=t.notes||'';
+  document.getElementById('td-due').value=t.due_date||'';
+  document.getElementById('td-top-btn').style.display=t.completed_at?'none':'';
+  setEditList(t.list);
+  om('m-todo');
+}
+function setEditList(l){
+  editList=l;
+  [].slice.call(document.querySelectorAll('#td-list button')).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===l);});
+}
+async function saveTodoEdit(){
+  var t=todos.find(function(x){return x.id===document.getElementById('td-id').value;});if(!t)return;
+  var title=document.getElementById('td-title').value.trim();
+  if(!title){document.getElementById('td-title').focus();return;}
+  var patch={title:title,notes:document.getElementById('td-notes').value.trim(),due_date:document.getElementById('td-due').value||null};
+  if(editList!==t.list){patch.list=editList;if(!t.completed_at)patch.position=topPosition(editList);}
+  cm('m-todo');
+  var p=updateTodo(t,patch,'Saving task');
+  renderTodos();renderDashTodos();
+  var ok=await p;
+  if(ok&&patch.list)showToast('Moved to '+(patch.list==='now'?'Now':'Later'));
+}
+async function moveTodoTop(){
+  var t=todos.find(function(x){return x.id===document.getElementById('td-id').value;});if(!t)return;
+  cm('m-todo');
+  var p=updateTodo(t,{position:topPosition(t.list)},'Moving task to top');
+  renderTodos();renderDashTodos();await p;
+}
+async function deleteTodo(){
+  var t=todos.find(function(x){return x.id===document.getElementById('td-id').value;});if(!t)return;
+  if(!confirm('Delete “'+t.title+'”? This cannot be undone.'))return;
+  cm('m-todo');
+  var idx=todos.indexOf(t);todos.splice(idx,1);renderTodos();renderDashTodos();
+  if(!IS_LIVE){saveLocalTodos();return;}
+  setHealth('busy','Saving');
+  var r=await sb.from('todos').delete().eq('id',t.id).select();
+  var ok=dbCheck(r,'Deleting task');
+  if(ok&&(!r.data||!r.data.length)){reportError('Deleting task',{code:'42501',message:'Supabase did not delete the task. A security rule may be blocking deletes on the todos table.'});ok=false;}
+  if(!ok){todos.splice(idx,0,t);renderTodos();renderDashTodos();return;}
+  flashVerified(true,'Deleted');
+}
+async function clearCompleted(){
+  var done=doneTodos(todoView.list);if(!done.length)return;
+  if(!confirm('Permanently delete '+done.length+' completed task'+(done.length>1?'s':'')+' from '+(todoView.list==='now'?'Now':'Later')+'?'))return;
+  var ids=done.map(function(t){return t.id;}),backup=todos.slice();
+  todos=todos.filter(function(t){return ids.indexOf(t.id)<0;});renderTodos();
+  if(!IS_LIVE){saveLocalTodos();return;}
+  setHealth('busy','Saving');
+  var r=await sb.from('todos').delete().in('id',ids).select();
+  var ok=dbCheck(r,'Clearing completed tasks');
+  if(ok&&(r.data||[]).length!==ids.length){reportError('Clearing completed tasks',{code:'MISMATCH',message:'Only '+(r.data||[]).length+' of '+ids.length+' tasks were deleted.'});ok=false;}
+  if(!ok){await reloadTodos();return;}
+  flashVerified(true,'Cleared');
+}
+
+async function reloadTodos(fromSetup){
+  if(!IS_LIVE||!UID||dragS)return;
+  if(todos.some(function(t){return t._pending;}))return;
+  var r=await fetchAll(function(){return sb.from('todos').select('*').eq('user_id',UID);},[['position'],['created_at']]);
+  if(r.error){
+    if(isMissingTable(r.error)){TODO_SETUP_NEEDED=true;if(fromSetup)reportError('Checking to-do setup',{code:'LOS-140',message:'The todos table still was not found. Make sure the setup code ran without errors.'});}
+    else dbCheck(r,'Loading tasks');
+  } else {
+    var wasSetup=TODO_SETUP_NEEDED;
+    TODO_SETUP_NEEDED=false;todos=r.data;
+    if(fromSetup&&wasSetup)showToast('To-do list is ready');
+  }
+  renderTodos();renderDashTodos();
+}
+
+// Fractional positions: moving a task writes ONE row, not the whole list.
+function positionBetween(a,b){
+  if(a==null&&b==null)return 0;
+  if(a==null)return b-1;
+  if(b==null)return a+1;
+  return (a+b)/2;
+}
+async function commitReorder(id,newIndex,list){
+  var act=activeTodos(list),t=act.find(function(x){return x.id===id;});if(!t)return;
+  var others=act.filter(function(x){return x.id!==id;});
+  if(act.indexOf(t)===newIndex){renderTodos();return;}
+  var prev=others[newIndex-1],next=others[newIndex];
+  if(prev&&next&&Math.abs(next.position-prev.position)<1e-6){await renumberTodos(list,id,newIndex);return;}
+  var pos=positionBetween(prev?prev.position:null,next?next.position:null);
+  var p=updateTodo(t,{position:pos},'Reordering tasks');
+  renderTodos();renderDashTodos();await p;
+}
+async function renumberTodos(list,id,newIndex){
+  var act=activeTodos(list),t=act.find(function(x){return x.id===id;});
+  var others=act.filter(function(x){return x.id!==id;});others.splice(newIndex,0,t);
+  others.forEach(function(x,i){x.position=i;});
+  renderTodos();renderDashTodos();
+  if(!IS_LIVE){saveLocalTodos();return;}
+  setHealth('busy','Saving');
+  var rs=await Promise.all(others.map(function(x,i){return sb.from('todos').update({position:i}).eq('id',x.id);}));
+  var bad=rs.find(function(r){return r.error;});
+  if(bad){dbCheck(bad,'Reordering tasks');await reloadTodos();}else flashVerified(true);
+}
+
+// Drag to reorder. Pointer events work for mouse, touch and pen. The handle
+// has touch-action:none so dragging it never scrolls the page on a phone.
+var dragS=null;
+function gripDown(e,id){
+  if(todoView.filter!=='active'||dragS)return;
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  var t=todos.find(function(x){return x.id===id;});if(!t||t._pending)return;
+  e.preventDefault();
+  var grip=e.currentTarget,row=grip.closest('.trw'),list=document.getElementById('todo-list');
+  var rect=row.getBoundingClientRect();
+  try{grip.setPointerCapture(e.pointerId);}catch(err){}
+  var ph=document.createElement('div');ph.className='trw-ph';ph.style.height=rect.height+'px';
+  list.insertBefore(ph,row);
+  row.classList.add('dragging');
+  row.style.position='fixed';row.style.left=rect.left+'px';row.style.top=rect.top+'px';
+  row.style.width=rect.width+'px';row.style.zIndex='400';row.style.margin='0';
+  document.body.classList.add('drag-lock');
+  dragS={id:id,grip:grip,row:row,ph:ph,list:list,offY:e.clientY-rect.top,y:e.clientY,raf:0};
+  if(navigator.vibrate)navigator.vibrate(10);
+  grip.addEventListener('pointermove',gripMove);
+  grip.addEventListener('pointerup',gripUp);
+  grip.addEventListener('pointercancel',gripUp);
+  dragS.raf=requestAnimationFrame(dragTick);
+}
+function gripMove(e){if(!dragS)return;e.preventDefault();dragS.y=e.clientY;placeDrag();}
+function placeDrag(){
+  var d=dragS;if(!d)return;
+  d.row.style.top=(d.y-d.offY)+'px';
+  var rows=[].slice.call(d.list.querySelectorAll('.trw')).filter(function(r){return r!==d.row;});
+  var before=null;
+  for(var i=0;i<rows.length;i++){var r=rows[i].getBoundingClientRect();if(d.y<r.top+r.height/2){before=rows[i];break;}}
+  if(before){if(d.ph.nextElementSibling!==before)d.list.insertBefore(d.ph,before);}
+  else if(d.list.lastElementChild!==d.ph)d.list.appendChild(d.ph);
+}
+function dragTick(){
+  if(!dragS)return;
+  var y=dragS.y,h=window.innerHeight,top=80,bottom=h-(window.innerWidth<=768?120:150),dy=0;
+  if(y<top)dy=-Math.ceil((top-y)/5);else if(y>bottom)dy=Math.ceil((y-bottom)/5);
+  if(dy){window.scrollBy(0,dy);placeDrag();}
+  dragS.raf=requestAnimationFrame(dragTick);
+}
+function gripUp(){
+  var d=dragS;if(!d)return;
+  dragS=null;cancelAnimationFrame(d.raf);
+  d.grip.removeEventListener('pointermove',gripMove);
+  d.grip.removeEventListener('pointerup',gripUp);
+  d.grip.removeEventListener('pointercancel',gripUp);
+  document.body.classList.remove('drag-lock');
+  var seq=[].slice.call(d.list.children).filter(function(n){return n!==d.row&&(n===d.ph||n.classList.contains('trw'));});
+  var idx=seq.indexOf(d.ph);
+  d.list.insertBefore(d.row,d.ph);d.ph.remove();
+  d.row.classList.remove('dragging');
+  ['position','left','top','width','zIndex','margin'].forEach(function(k){d.row.style[k]='';});
+  commitReorder(d.id,idx,todoView.list);
+}
+
+// Undo toast
+var toastTimer=null,toastUndo=null;
+function showToast(msg,undo){
+  document.getElementById('toast-msg').textContent=msg;
+  toastUndo=undo||null;
+  document.getElementById('toast-undo').style.display=undo?'':'none';
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(hideToast,undo?5000:2200);
+}
+function hideToast(){document.getElementById('toast').classList.remove('show');toastUndo=null;}
+function toastUndoClick(){var f=toastUndo;hideToast();if(f)f();}
 
 // ── CSV IMPORT ──
 function guessCategory(m){
@@ -2719,7 +3203,7 @@ function buildCtx(){
   var cats={};mT.filter(function(t){return t.type==='expense'&&!t.isTransfer;}).forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+parseFloat(t.amount);});
   var top=Object.entries(cats).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0]+' $'+Math.round(e[1]);}).join(', ');
   var hStats=habits.map(function(h){var s=habitWeekStats(h);return h.name+': '+s.good+'/'+s.total+' good days';}).join(', ');
-  return'Income: $'+Math.round(calc.totalIncome)+'/mo. Bills: $'+Math.round(calc.fixedTotal)+'/mo. Savings: $'+Math.round(calc.savAmt)+'/mo. Spendable: $'+Math.round(calc.spendable)+'/mo. Spent this month: $'+Math.round(spent)+'. Top spending: '+(top||'none')+'. Habits: '+hStats+'. Savings balance: '+(savings.length?'$'+savings[savings.length-1].amount:'not logged')+'.';
+  return'Income: $'+Math.round(calc.totalIncome)+'/mo. Bills: $'+Math.round(calc.fixedTotal)+'/mo. Savings: $'+Math.round(calc.savAmt)+'/mo. Spendable: $'+Math.round(calc.spendable)+'/mo. Spent this month: $'+Math.round(spent)+'. Top spending: '+(top||'none')+'. Habits: '+hStats+'. Savings balance: '+(savings.length?'$'+savings[savings.length-1].amount:'not logged')+'. Open tasks: '+activeTodos('now').length+' now, '+activeTodos('later').length+' later.';
 }
 async function genIB(){
   addIBMsg('Analyzing your data…','ai');
@@ -2743,7 +3227,7 @@ async function sendIB(){
 document.getElementById('li-version').textContent='Life OS v'+APP_VERSION;
 console.log('[LifeOS] version '+APP_VERSION);
 window.addEventListener('offline',function(){setHealth('bad','Offline');});
-window.addEventListener('online',function(){setHealth('busy','Reconnecting');if(UID)refreshLogs();});
+window.addEventListener('online',function(){setHealth('busy','Reconnecting');if(UID){refreshLogs();reloadTodos();}});
 if(!IS_LIVE)setHealth('','Preview mode');
 document.querySelectorAll('.overlay').forEach(function(m){m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
 
@@ -2769,12 +3253,12 @@ if(!IS_LIVE){
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState!=='visible')return;
     if(ymd(new Date())!==TODAY){location.reload();return;}
-    if(UID&&Date.now()-lastSyncAt>30000)refreshLogs();
+    if(UID&&Date.now()-lastSyncAt>30000){refreshLogs();reloadTodos();}
   });
   setInterval(function(){
     if(document.visibilityState!=='visible')return;
     if(ymd(new Date())!==TODAY){location.reload();return;}
-    if(UID)refreshLogs();
+    if(UID){refreshLogs();reloadTodos();}
   },5*60*1000);
   sb.auth.getSession().then(function(result){if(!result.data.session)document.getElementById('login-screen').style.display='flex';});
 }
