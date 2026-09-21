@@ -327,8 +327,12 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
         <div class="card"><div class="ch"><h2>Quick log — <span id="d-day" style="color:var(--blue)"></span></h2></div><div id="d-quicklog" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
         <div class="card" style="margin-top:14px">
           <div class="ch"><h2>Connection</h2><span id="conn-status" style="font-size:11px;color:var(--txt3);font-weight:500"></span></div>
-          <p style="font-size:12px;color:var(--txt2);margin-bottom:14px;line-height:1.6">If habit logs are not sticking, run this test. It shows the exact database error, if there is one.</p>
-          <button class="btn btn-sm" onclick="runSaveTest()">Test database write</button>
+          <p style="font-size:12px;color:var(--txt2);margin-bottom:14px;line-height:1.6">Every tap is read back from Supabase before it counts. Check sync compares what's stored with what's on screen.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-sm" onclick="runSyncCheck()">Check sync</button>
+            <button class="btn btn-sm" onclick="refreshLogs()">Reload from Supabase</button>
+            <button class="btn btn-sm" onclick="runSaveTest()">Test database write</button>
+          </div>
           <div id="conn-log" style="margin-top:12px;font-size:11px;font-family:var(--mono);color:var(--txt3);white-space:pre-wrap;line-height:1.7"></div>
         </div>
       </div>
@@ -685,6 +689,94 @@ function clearDbError(){
   if(el)el.remove();
 }
 
+// ── SYNC & VERIFICATION ──
+// Supabase returns at most 1000 rows per request unless you page through.
+// Once habit_logs grew past 1000, everything beyond that was silently cut
+// off when the app loaded, so saved logs came back as neutral.
+var lastSyncAt=0;
+
+async function fetchAll(makeQuery,orders){
+  var PAGE=1000,from=0,all=[];
+  while(true){
+    var q=makeQuery();
+    orders.forEach(function(o){q=q.order(o[0],{ascending:o[1]!==false});});
+    var r=await q.range(from,from+PAGE-1);
+    if(r.error)return{data:all,error:r.error};
+    var rows=r.data||[];
+    all=all.concat(rows);
+    if(rows.length<PAGE)break;
+    from+=PAGE;
+  }
+  return{data:all,error:null};
+}
+
+function flashVerified(ok,text){
+  var el=document.getElementById('sav-ind');if(!el)return;
+  el.innerHTML=ok
+    ?'<span style="color:var(--green);font-weight:700">✓</span> '+(text||'Saved & verified')
+    :'<span style="color:var(--red);font-weight:700">!</span> '+(text||'Not verified');
+  el.classList.add('show');
+  clearTimeout(flashVerified._t);
+  flashVerified._t=setTimeout(function(){
+    el.classList.remove('show');
+    el.innerHTML='<div class="spinner"></div> Saving…';
+  },1800);
+}
+
+function setSyncStatus(){
+  var cs=document.getElementById('conn-status');
+  if(!cs||!lastSyncAt)return;
+  cs.textContent='Synced '+new Date(lastSyncAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+' · '+Object.keys(logs).length+' logs';
+  cs.style.color='var(--green)';
+}
+
+function rerenderActive(){
+  var active=document.querySelector('.page.active');if(!active)return;
+  var id=active.id.replace('pg-','');
+  if(id==='dashboard')renderDash();
+  else if(id==='habits'){
+    renderHabits();
+    if(document.getElementById('habits-month').style.display==='block')renderMonthCal();
+    if(document.getElementById('habits-year').style.display==='block')renderYearCal();
+  }
+  else if(id==='analytics')renderAnalytics();
+}
+
+// Replace what's on screen with exactly what Supabase holds.
+async function refreshLogs(){
+  if(!IS_LIVE||!UID)return;
+  var r=await fetchAll(function(){
+    return sb.from('habit_logs').select('habit_id,log_date,state').eq('user_id',UID);
+  },[['log_date'],['habit_id']]);
+  if(r.error){dbCheck(r,'Refreshing logs');return;}
+  var fresh={};
+  r.data.forEach(function(l){fresh[l.habit_id+'_'+l.log_date]=l.state;});
+  Object.keys(pendingDots).forEach(function(k){if(k in logs)fresh[k]=logs[k];else delete fresh[k];});
+  logs=fresh;
+  lastSyncAt=Date.now();
+  setSyncStatus();
+  rerenderActive();
+}
+
+// Compares the number of logs in Supabase with the number on screen.
+async function runSyncCheck(){
+  var out=document.getElementById('conn-log');
+  function line(t){out.textContent+=t+'\n';}
+  out.textContent='';
+  if(!IS_LIVE){line('Offline preview mode.');return;}
+  var c=await sb.from('habit_logs').select('habit_id',{count:'exact',head:true}).eq('user_id',UID);
+  if(c.error){line('Count failed ['+(c.error.code||'?')+'] '+c.error.message);return;}
+  line('Logs stored in Supabase:  '+c.count);
+  line('Logs showing in the app:  '+Object.keys(logs).length);
+  await refreshLogs();
+  var after=Object.keys(logs).length;
+  line('After a full reload:      '+after);
+  line('');
+  if(c.count===after)line('In sync. Every stored log is showing.');
+  else if(c.count>after)line('Supabase has '+(c.count-after)+' more rows than unique habit/day slots. That means duplicate rows for the same day. Run fix 6a in supabase-diagnostics.sql.');
+  else line('Counts differ. Tap Check sync again and send me these numbers if it repeats.');
+}
+
 async function runSaveTest(){
   var out=document.getElementById('conn-log');
   function line(t){out.textContent+=t+'\n';}
@@ -923,8 +1015,8 @@ async function loadAllData(){
   var labels=['habits','habit_logs','transactions','bills','incomes','savings','journal','rules','merchant_cats','bill_paid','budget_settings'];
   var results=await Promise.all([
     sb.from('habits').select('*').eq('user_id',UID).order('sort_order'),
-    sb.from('habit_logs').select('*').eq('user_id',UID),
-    sb.from('transactions').select('*').eq('user_id',UID).order('date',{ascending:false}),
+    fetchAll(function(){return sb.from('habit_logs').select('*').eq('user_id',UID);},[['log_date'],['habit_id']]),
+    fetchAll(function(){return sb.from('transactions').select('*').eq('user_id',UID);},[['date',false],['id']]),
     sb.from('bills').select('*').eq('user_id',UID),
     sb.from('incomes').select('*').eq('user_id',UID),
     sb.from('savings').select('*').eq('user_id',UID).order('month'),
@@ -956,6 +1048,7 @@ async function loadAllData(){
   rules=results[7].data||[];
   mCats={};(results[8].data||[]).forEach(function(m){mCats[m.merchant]=m.cat;});
   billPaid={};(results[9].data||[]).forEach(function(b){billPaid[b.bill_id+'_'+b.month]=b.paid;});
+  if(!results[1].error){lastSyncAt=Date.now();setSyncStatus();}
   var budRow=results[10].data;
   budget=budRow?{mode:budRow.mode,pct:+budRow.pct,fixed:+budRow.fixed_amount,savGoalAmount:+(budRow.sav_goal_amount||0),savGoalName:budRow.sav_goal_name||''}:{mode:'pct',pct:10,fixed:0,savGoalAmount:0,savGoalName:''};
 
@@ -1004,6 +1097,9 @@ async function saveBudgetToDB(){
 // ── HABIT LOGS (FIX) ──
 // Database first; the dot only changes after Postgres confirms.
 async function cycleDot(hid,ds){
+  // If the app was left open past midnight, "today" is stale. Reload first
+  // so the tap can't be written to yesterday's date.
+  if(ymd(new Date())!==TODAY){location.reload();return;}
   var k=hid+'_'+ds;
   var cur=logs[k];
   var next;
@@ -1030,10 +1126,37 @@ async function cycleDot(hid,ds){
   }catch(e){
     res={error:{message:(e&&e.message)||'Network error. Check your connection.'}};
   }
+  if(!dbCheck(res,'Logging '+ds)){delete pendingDots[k];flashVerified(false,'Not saved');return;}
+
+  // Ping Supabase and read the row back to prove it is really stored.
+  var chk;
+  try{
+    chk=await sb.from('habit_logs').select('state').eq('habit_id',hid).eq('log_date',ds).eq('user_id',UID);
+  }catch(e){
+    chk={error:{message:(e&&e.message)||'Network error while verifying.'}};
+  }
   delete pendingDots[k];
-  if(!dbCheck(res,'Logging '+ds))return;
-  clearDbError();
+  if(!dbCheck(chk,'Verifying '+ds)){flashVerified(false);return;}
+
+  var rows=chk.data||[];
+  var stored=rows.length?rows[rows.length-1].state:null;
+
+  if(stored!==next){
+    // The database disagrees with the tap. Show what is really stored.
+    if(stored)logs[k]=stored;else delete logs[k];
+    showDbError('Verifying '+ds,{code:'MISMATCH',message:'Supabase has "'+(stored||'nothing')+'" but you tapped "'+(next||'clear')+'". The screen now shows what is actually stored.'});
+    flashVerified(false);
+    return;
+  }
+  if(rows.length>1){
+    showDbError('Verifying '+ds,{code:'DUPLICATE',message:rows.length+' copies of this log exist. Run fix 6a in supabase-diagnostics.sql so each day can only be stored once.'});
+  } else {
+    clearDbError();
+  }
   if(next)logs[k]=next;else delete logs[k];
+  lastSyncAt=Date.now();
+  setSyncStatus();
+  flashVerified(true);
 }
 
 // ── NAVIGATION ──
@@ -2214,6 +2337,18 @@ if(!IS_LIVE){
     }
     if(session&&session.user)initApp(session.user);
   });
+  // Phones keep home-screen apps alive for days. Every time the app comes
+  // back into view: reload if the date changed, otherwise resync the logs.
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState!=='visible')return;
+    if(ymd(new Date())!==TODAY){location.reload();return;}
+    if(UID&&Date.now()-lastSyncAt>30000)refreshLogs();
+  });
+  setInterval(function(){
+    if(document.visibilityState!=='visible')return;
+    if(ymd(new Date())!==TODAY){location.reload();return;}
+    if(UID)refreshLogs();
+  },5*60*1000);
   sb.auth.getSession().then(function(result){if(!result.data.session)document.getElementById('login-screen').style.display='flex';});
 }
 </script>
