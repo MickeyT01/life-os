@@ -193,12 +193,49 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 .pbar-fill.good{background:var(--green)}.pbar-fill.warn{background:var(--amber)}.pbar-fill.bad{background:var(--red)}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--bdr2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.saving-ind{position:fixed;top:12px;right:16px;font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
+.saving-ind{position:fixed;top:calc(62px + env(safe-area-inset-top));right:calc(16px + env(safe-area-inset-right));font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;background:var(--sur);border:1px solid var(--bdr2);border-radius:20px;padding:6px 12px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
 .saving-ind.show{opacity:1}
 .db-err{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top));z-index:400;max-width:92vw;width:440px;background:rgba(30,12,14,.96);border:1px solid rgba(239,68,68,.45);color:#fca5a5;padding:12px 16px;border-radius:12px;font-size:12px;line-height:1.55;cursor:pointer;box-shadow:0 12px 40px rgba(0,0,0,.5)}
 .db-err strong{color:#fecaca}
 .db-err code{font-family:var(--mono);font-size:11px;color:#fde68a}
 .db-err .dismiss{color:var(--txt3);font-size:11px;display:block;margin-top:6px}
+.health{position:fixed;top:calc(16px + env(safe-area-inset-top));right:calc(60px + env(safe-area-inset-right));z-index:250;height:36px;padding:0 13px;border-radius:18px;background:var(--sur);border:1px solid var(--bdr2);display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--txt2);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);font-family:'Inter',sans-serif;transition:border-color .2s,color .2s}
+.health .hd{width:8px;height:8px;border-radius:50%;background:var(--txt3);flex-shrink:0;transition:background .2s}
+.health.ok .hd{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.6)}
+.health.busy .hd{background:var(--amber);animation:pulse 1s ease-in-out infinite}
+.health.bad{color:#fca5a5;border-color:rgba(239,68,68,.45)}
+.health.bad .hd{background:var(--red);box-shadow:0 0 8px rgba(239,68,68,.6)}
+.tpill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.tpill.idle{background:var(--sur2);color:var(--txt3)}
+.tpill.run{background:rgba(245,158,11,.12);color:var(--amber)}
+.tpill.pass{background:rgba(34,197,94,.15);color:var(--green)}
+.tpill.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.tpill.fail{background:rgba(239,68,68,.15);color:var(--red)}
+.trow,.erow{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.trow:last-child,.erow:last-child{border-bottom:none}
+.tname{font-size:13px;font-weight:600}
+.tdetail{font-size:11px;color:var(--txt3);margin-top:2px;line-height:1.5;word-break:break-word}
+.tcode{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--sur3);color:var(--txt2);flex-shrink:0;white-space:nowrap}
+.err-badge{font-family:var(--mono);font-size:12px;font-weight:700;padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.35);white-space:nowrap}
+.err-where{font-size:12px;color:var(--txt3);margin:-8px 0 14px}
+.err-sec{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:13px;line-height:1.55}
+.err-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--txt3);margin-bottom:4px}
+.err-det summary{font-size:12px;color:var(--txt2);cursor:pointer;margin-top:4px}
+.err-det pre{font-family:var(--mono);font-size:11px;color:var(--txt2);background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:10px;margin-top:8px;white-space:pre-wrap;word-break:break-word}
+.srow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--bdr);font-size:12px}
+.srow:last-child{border-bottom:none}
+.srow span:first-child{color:var(--txt3)}
+.srow span:last-child{font-weight:600;text-align:right;font-family:var(--mono);font-size:11px}
+.stbl{width:100%;border-collapse:collapse;font-size:11px}
+.stbl th{font-weight:600;color:var(--txt3);padding:6px 3px;text-align:center;font-size:10px;white-space:nowrap}
+.stbl th:first-child{text-align:left}
+.stbl td{padding:4px 3px;text-align:center;border-top:1px solid var(--bdr)}
+.stbl td:first-child{text-align:left;font-weight:600;font-size:12px;white-space:nowrap;padding-right:10px}
+.sc{display:inline-flex;width:24px;height:24px;border-radius:6px;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:10px;background:var(--sur2);color:var(--txt3)}
+.sc.y{background:rgba(59,130,246,.15);color:var(--blue)}
+.sc.n{background:rgba(148,163,184,.14);color:var(--txt2)}
+.sc.mm{outline:2px solid var(--amber);outline-offset:1px}
+@media(max-width:480px){.health{padding:0 10px}.health #health-txt{max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 #mass-bar{display:none;background:var(--blue-dim);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:10px 14px;margin-bottom:10px;align-items:center;gap:10px;font-size:12px}
 .ai-fab{position:fixed;left:calc(16px + env(safe-area-inset-left));bottom:calc(78px + env(safe-area-inset-bottom));z-index:160;width:50px;height:50px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(59,130,246,.4);transition:transform .15s}
 .ai-fab:hover{transform:scale(1.06)}
@@ -279,6 +316,7 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
     <div class="login-field"><label>Password</label><input type="password" id="li-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')signIn()"></div>
     <button class="login-btn" id="li-btn" onclick="signIn()">Sign in</button>
     <div class="login-err" id="li-err"></div>
+    <p id="li-version" style="font-size:10px;color:var(--txt3);text-align:center;margin-top:14px;font-family:var(--mono)"></p>
   </div>
 </div>
 
@@ -288,6 +326,8 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
     <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
   </button>
 
+  <button class="health" id="health" onclick="openSettings()" title="Connection status — tap for Settings"><span class="hd"></span><span id="health-txt">Connecting</span></button>
+
   <nav class="bnav">
     <div class="bnav-inner">
       <button class="bnav-btn active" onclick="go('dashboard',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Home</span></button>
@@ -295,6 +335,7 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
       <button class="bnav-btn" onclick="go('finance',this)" style="display:none"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finance</span></button>
       <button class="bnav-btn" onclick="go('analytics',this)"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Stats</span></button>
       <button class="bnav-btn" onclick="go('journal',this)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Journal</span></button>
+      <button class="bnav-btn" id="nav-settings" onclick="go('settings',this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span>Settings</span></button>
     </div>
   </nav>
 
@@ -325,15 +366,6 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
           <div class="card" style="display:none"><div class="ch"><h2>Recent transactions</h2><button class="btn btn-ghost btn-sm" onclick="go('finance',null)">See all →</button></div><div id="d-txns"></div></div>
         </div>
         <div class="card"><div class="ch"><h2>Quick log — <span id="d-day" style="color:var(--blue)"></span></h2></div><div id="d-quicklog" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
-        <div class="card" style="margin-top:14px">
-          <div class="ch"><h2>Connection</h2><span id="conn-status" style="font-size:11px;color:var(--txt3);font-weight:500"></span></div>
-          <p style="font-size:12px;color:var(--txt2);margin-bottom:14px;line-height:1.6">Every tap is read back from Supabase before it counts. Check sync compares what's stored with what's on screen.</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-sm" onclick="runSyncCheck()">Check sync</button>
-            <button class="btn btn-sm" onclick="refreshLogs()">Reload from Supabase</button>
-            <button class="btn btn-sm" onclick="runSaveTest()">Test database write</button>
-          </div>
-          <div id="conn-log" style="margin-top:12px;font-size:11px;font-family:var(--mono);color:var(--txt3);white-space:pre-wrap;line-height:1.7"></div>
         </div>
       </div>
 
@@ -482,6 +514,41 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
           <div class="card"><div class="ch"><h2>Past entries</h2></div><div id="journal-list"></div></div>
         </div>
       </div>
+
+      <div id="pg-settings" class="page">
+        <div class="ph"><div class="ph-eye">System</div><h1>Settings</h1></div>
+        <div class="g2">
+          <div class="card">
+            <div class="ch"><h2>Status</h2><span id="conn-status" style="font-size:11px;color:var(--txt3);font-weight:500"></span></div>
+            <div id="set-status"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+              <button class="btn btn-sm" onclick="refreshLogs()">Reload from Supabase</button>
+              <button class="btn btn-sm" onclick="location.reload()">Restart app</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><h2>Connection tests</h2><span id="test-summary" style="font-size:11px;font-weight:600;color:var(--txt3)"></span></div>
+            <p style="font-size:12px;color:var(--txt2);margin-bottom:12px;line-height:1.6">Checks every step your data takes, from this device to Supabase and back. Uses a hidden test entry dated 1970 that is removed straight after.</p>
+            <button class="btn btn-blue btn-sm" id="run-tests-btn" onclick="runAllTests()">Run all tests</button>
+            <div id="test-list" style="margin-top:10px"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="ch"><h2>Stored in Supabase — last 7 days</h2><button class="btn btn-ghost btn-sm" onclick="renderStoredLogs()">Refresh</button></div>
+          <p style="font-size:12px;color:var(--txt2);margin-bottom:12px;line-height:1.6">Read straight from the database, not from the screen. Y and N are what you tapped. An amber outline means the Habits page shows something different.</p>
+          <div id="stored-logs" style="overflow-x:auto"></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ch"><h2>Error history</h2><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm" id="copy-errlog-btn" onclick="copyErrLog()">Copy</button><button class="btn btn-ghost btn-sm" onclick="clearErrLog()">Clear</button></div></div>
+            <div id="err-log"></div>
+          </div>
+          <div class="card">
+            <div class="ch"><h2>Error codes</h2></div>
+            <div id="code-ref" style="max-height:440px;overflow-y:auto"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -614,7 +681,21 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
   <button class="btn btn-blue" style="width:100%;justify-content:center" onclick="applyInlineCat()">Apply</button>
 </div></div>
 
+<div class="overlay" id="m-error"><div class="modal" style="width:440px">
+  <div class="mh"><div style="display:flex;align-items:center;gap:10px;min-width:0"><span class="err-badge" id="err-code">LOS-000</span><h2 id="err-title">Error</h2></div><button class="close-x" onclick="cm('m-error')">×</button></div>
+  <div class="err-where">While: <span id="err-context"></span></div>
+  <div class="err-sec"><div class="err-lbl">What happened</div><div id="err-what"></div></div>
+  <div class="err-sec"><div class="err-lbl">What to do</div><div id="err-fix"></div></div>
+  <details class="err-det"><summary>Technical details</summary><pre id="err-raw"></pre></details>
+  <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn btn-blue btn-sm" onclick="cm('m-error');openSettingsAndTest()">Run tests</button>
+    <button class="btn btn-sm" id="err-copy-btn" onclick="copyErrorDetails()">Copy details</button>
+    <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="cm('m-error')">Dismiss</button>
+  </div>
+</div></div>
+
 <script>
+const APP_VERSION='2.4.0 · 2026-09-21';
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const NOW=new Date();
 const TODAY_IDX=(NOW.getDay()+6)%7;
@@ -643,51 +724,105 @@ let budget={mode:'pct',pct:10,fixed:0,savGoalAmount:0,savGoalName:''};
 let customCats=[];
 let pendingDots={};
 
-// ── ERROR SURFACING (FIX) ──
-// Supabase never throws on a database error; it returns {data,error}.
-// The old code ignored that, so failed saves looked successful.
-var lastDbError=null;
-var DB_HINTS={
-  '42P10':'The upsert target does not match a unique constraint. habit_logs needs UNIQUE (habit_id, log_date).',
-  '42501':'A row level security policy blocked this write. Check the INSERT/UPDATE/DELETE policies on this table.',
-  '42703':'A column being sent does not exist on that table.',
-  '23503':'Foreign key violation. The referenced row is missing.',
-  '23505':'Duplicate key. A unique constraint rejected the row.',
-  'PGRST301':'Your sign-in token expired. Sign out and back in.',
-  'PGRST204':'A column in the request is not in the table schema cache.'
+// ── ERROR SYSTEM ──
+// Every failure is classified into a Life OS code (LOS-xxx), shown in a
+// popup with what happened and what to do, and kept in an on-device log.
+var ERROR_CODES={
+  'LOS-100':{title:'No connection',what:'The app could not reach Supabase. This device may be offline, or the network blocked the request.',fix:'Check your internet, then tap the habit again. Nothing was saved.'},
+  'LOS-101':{title:'Supabase unavailable',what:'Supabase answered with a server error. The project may be paused or having an outage.',fix:'Open your Supabase dashboard. If the project says Paused, restore it. Then run the tests in Settings.'},
+  'LOS-110':{title:'Sign-in expired',what:'Your login is no longer valid, so Supabase refused the request.',fix:'Sign out and sign back in, then repeat what you were doing.'},
+  'LOS-111':{title:'Not signed in',what:'There is no active login on this device.',fix:'Sign in again.'},
+  'LOS-120':{title:'Permission denied',what:'A security rule (row level security) on this table blocked the request.',fix:'Run fix 6b in supabase-diagnostics.sql for the table named in the details.'},
+  'LOS-130':{title:'Missing unique rule',what:'The table has no unique rule matching this save, so every save of this kind fails.',fix:'Run fix 6a in supabase-diagnostics.sql (UNIQUE habit_id, log_date).'},
+  'LOS-131':{title:'Duplicate rows',what:'The same habit and day is stored more than once, so the app cannot tell which one is right.',fix:'Run fix 6a in supabase-diagnostics.sql to remove duplicates and prevent new ones.'},
+  'LOS-132':{title:'Duplicate key',what:'A unique rule rejected the row because an identical one already exists.',fix:'Tap Reload from Supabase in Settings, then try again.'},
+  'LOS-140':{title:'Table or column missing',what:'The app used a table or column that does not exist in your database.',fix:'Copy the details and send them to me. The table layout needs a small change.'},
+  'LOS-141':{title:'Linked record missing',what:'This save points at a record, such as a habit, that no longer exists.',fix:'Restart the app. If the habit was deleted on another device, this is expected.'},
+  'LOS-150':{title:'Save not confirmed',what:'Supabase reported success, but reading the row back showed something different.',fix:'The screen now shows what is really stored. Run the tests in Settings and send me the results.'},
+  'LOS-151':{title:'Could not verify save',what:'The save went through, but the app could not read it back to confirm it.',fix:'Tap Reload from Supabase in Settings to see what is stored.'},
+  'LOS-160':{title:'Load failed',what:'Part of your data could not be loaded, so some things may be missing from the screen.',fix:'Tap Reload from Supabase in Settings. If it keeps happening, run the tests.'},
+  'LOS-161':{title:'Out of sync',what:'What is stored in Supabase does not match what is on screen.',fix:'The screen has been refreshed from Supabase. If this repeats, run the tests and send me the results.'},
+  'LOS-170':{title:'Date changed',what:'The app was left open past midnight, so it is reloading to use today\'s date.',fix:'Nothing to do. Tap the habit again once it reloads.'},
+  'LOS-180':{title:'Too many requests',what:'Supabase is temporarily limiting requests from this device.',fix:'Wait a minute and try again.'},
+  'LOS-199':{title:'Unexpected error',what:'Something failed that the app does not recognise.',fix:'Copy the details and send them to me.'}
 };
 
-function dbCheck(res,what){
-  if(res&&res.error){
-    lastDbError=res.error;
-    console.error('[LifeOS] '+what+' failed',res.error);
-    showDbError(what,res.error);
-    return false;
-  }
-  return true;
+function classifyError(err){
+  if(err==null)err={};
+  if(typeof err==='string')err={message:err};
+  var pg=String(err.code||''),msg=String(err.message||err.error_description||'').toLowerCase(),st=+err.status||0;
+  var map={MISMATCH:'LOS-150',VERIFY:'LOS-151',DUPLICATE:'LOS-131',SESSION:'LOS-110',NOSESSION:'LOS-111',SYNC:'LOS-161',LOAD:'LOS-160',STALE:'LOS-170'};
+  if(map[pg])return map[pg];
+  if(ERROR_CODES[pg])return pg;
+  if(pg==='42501'||st===403)return'LOS-120';
+  if(pg==='42P10')return'LOS-130';
+  if(pg==='23505')return'LOS-132';
+  if(pg==='42703'||pg==='42P01'||pg==='PGRST204'||pg==='PGRST205'||pg==='PGRST200')return'LOS-140';
+  if(pg==='23503')return'LOS-141';
+  if(pg==='PGRST301'||pg==='PGRST303'||st===401||msg.indexOf('jwt')>=0)return'LOS-110';
+  if(st===429)return'LOS-180';
+  if(st>=500||pg==='PGRST000'||pg==='PGRST001'||pg==='PGRST002')return'LOS-101';
+  if(!navigator.onLine||/failed to fetch|networkerror|network request failed|load failed|timed? ?out|abort/.test(msg))return'LOS-100';
+  return'LOS-199';
 }
 
-function showDbError(what,err){
-  var el=document.getElementById('db-error');
-  if(!el){
-    el=document.createElement('div');
-    el.id='db-error';
-    el.className='db-err';
-    el.onclick=function(){el.remove();};
-    document.body.appendChild(el);
-  }
-  var code=err&&err.code?String(err.code):'';
-  var hint=DB_HINTS[code]||'';
-  el.innerHTML='<strong>Not saved — '+what+'</strong><br>'+
-    (code?'<code>'+code+'</code> · ':'')+((err&&err.message)||String(err||'unknown error'))+
-    (hint?'<br><span style="color:#8892a4">'+hint+'</span>':'')+
-    '<span class="dismiss">Tap to dismiss</span>';
+var ERR_LOG_KEY='los_error_log';
+function readErrLog(){try{return JSON.parse(localStorage.getItem(ERR_LOG_KEY))||[];}catch(e){return[];}}
+function writeErrLog(list){try{localStorage.setItem(ERR_LOG_KEY,JSON.stringify(list.slice(0,50)));}catch(e){}}
+
+var lastDbError=null,lastErrAt=0,errRepeat={code:null,at:0,count:0};
+function reportError(context,err){
+  var code=classifyError(err);
+  var info=ERROR_CODES[code];
+  var e=(typeof err==='string')?{message:err}:(err||{});
+  var raw={pg:e.code&&!ERROR_CODES[e.code]?String(e.code):'',status:e.status||'',message:e.message||String(err||'')};
+  lastDbError={code:code,context:context,raw:raw,at:Date.now()};
+  lastErrAt=Date.now();
+  console.error('[LifeOS] '+code+' · '+context,err);
+  var log=readErrLog();
+  log.unshift({t:new Date().toISOString(),code:code,context:context,msg:raw.message,pg:raw.pg});
+  writeErrLog(log);
+  var now=Date.now();
+  if(errRepeat.code===code&&now-errRepeat.at<5000)errRepeat.count++;else errRepeat={code:code,at:now,count:1};
+  errRepeat.at=now;
+  setHealth('bad',code);
+  showErrorModal(code,info,context,raw,errRepeat.count);
+  if(document.getElementById('pg-settings').classList.contains('active'))renderErrLog();
 }
 
-function clearDbError(){
-  var el=document.getElementById('db-error');
-  if(el)el.remove();
+function showErrorModal(code,info,context,raw,count){
+  document.getElementById('err-code').textContent=code;
+  document.getElementById('err-title').textContent=info.title+(count>1?' (×'+count+')':'');
+  document.getElementById('err-context').textContent=context;
+  document.getElementById('err-what').textContent=info.what;
+  document.getElementById('err-fix').textContent=info.fix;
+  document.getElementById('err-raw').textContent=
+    'Code: '+code+'\nWhile: '+context+'\nDatabase code: '+(raw.pg||'none')+
+    (raw.status?'\nHTTP status: '+raw.status:'')+'\nMessage: '+raw.message+
+    '\nTime: '+new Date().toLocaleString()+'\nApp: '+APP_VERSION+'\nOnline: '+navigator.onLine;
+  om('m-error');
 }
+
+function copyText(t,btnId){
+  function done(){var b=document.getElementById(btnId);if(b){var o=b.textContent;b.textContent='Copied';setTimeout(function(){b.textContent=o;},1200);}}
+  function fallback(){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}ta.remove();done();}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done,fallback);else fallback();
+}
+function copyErrorDetails(){copyText(document.getElementById('err-raw').textContent,'err-copy-btn');}
+
+// Kept so every existing save path routes into the new system.
+function dbCheck(res,what){if(res&&res.error){reportError(what,res.error);return false;}return true;}
+function showDbError(what,err){reportError(what,err);}
+function clearDbError(){}
+
+// ── STATUS CHIP (top right) ──
+function setHealth(state,text){
+  var el=document.getElementById('health');if(!el)return;
+  el.className='health'+(state?' '+state:'');
+  document.getElementById('health-txt').textContent=text;
+}
+function openSettings(){go('settings',document.getElementById('nav-settings'));}
+function openSettingsAndTest(){openSettings();runAllTests();}
 
 // ── SYNC & VERIFICATION ──
 // Supabase returns at most 1000 rows per request unless you page through.
@@ -716,6 +851,7 @@ function flashVerified(ok,text){
     ?'<span style="color:var(--green);font-weight:700">✓</span> '+(text||'Saved & verified')
     :'<span style="color:var(--red);font-weight:700">!</span> '+(text||'Not verified');
   el.classList.add('show');
+  setHealth(ok?'ok':'bad',ok?'Saved':'Not saved');
   clearTimeout(flashVerified._t);
   flashVerified._t=setTimeout(function(){
     el.classList.remove('show');
@@ -728,6 +864,7 @@ function setSyncStatus(){
   if(!cs||!lastSyncAt)return;
   cs.textContent='Synced '+new Date(lastSyncAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+' · '+Object.keys(logs).length+' logs';
   cs.style.color='var(--green)';
+  if(Date.now()-lastErrAt>8000)setHealth('ok','Synced');
 }
 
 function rerenderActive(){
@@ -740,6 +877,7 @@ function rerenderActive(){
     if(document.getElementById('habits-year').style.display==='block')renderYearCal();
   }
   else if(id==='analytics')renderAnalytics();
+  else if(id==='settings')renderSettings();
 }
 
 // Replace what's on screen with exactly what Supabase holds.
@@ -758,45 +896,324 @@ async function refreshLogs(){
   rerenderActive();
 }
 
-// Compares the number of logs in Supabase with the number on screen.
-async function runSyncCheck(){
-  var out=document.getElementById('conn-log');
-  function line(t){out.textContent+=t+'\n';}
-  out.textContent='';
-  if(!IS_LIVE){line('Offline preview mode.');return;}
-  var c=await sb.from('habit_logs').select('habit_id',{count:'exact',head:true}).eq('user_id',UID);
-  if(c.error){line('Count failed ['+(c.error.code||'?')+'] '+c.error.message);return;}
-  line('Logs stored in Supabase:  '+c.count);
-  line('Logs showing in the app:  '+Object.keys(logs).length);
-  await refreshLogs();
-  var after=Object.keys(logs).length;
-  line('After a full reload:      '+after);
-  line('');
-  if(c.count===after)line('In sync. Every stored log is showing.');
-  else if(c.count>after)line('Supabase has '+(c.count-after)+' more rows than unique habit/day slots. That means duplicate rows for the same day. Run fix 6a in supabase-diagnostics.sql.');
-  else line('Counts differ. Tap Check sync again and send me these numbers if it repeats.');
+// ── SETTINGS: CONNECTION TESTS ──
+var ALL_TABLES=['habits','habit_logs','transactions','bills','incomes','savings','journal','rules','merchant_cats','bill_paid','budget_settings'];
+var PROBE_DATE='1970-01-01';
+var TESTS=[
+  {id:'app',name:'App version & date'},
+  {id:'net',name:'Internet & Supabase reachable'},
+  {id:'auth',name:'Signed in & login valid'},
+  {id:'read',name:'Read access to every table'},
+  {id:'logwrite',name:'Habit log: save → read back → clear'},
+  {id:'unique',name:'One log per habit per day'},
+  {id:'otherwrite',name:'General save & delete (rules table)'},
+  {id:'fullload',name:'Every stored log loads'},
+  {id:'screen',name:'Screen matches Supabase'}
+];
+var testState={},testsRunning=false;
+
+function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+function renderTests(){
+  var el=document.getElementById('test-list');if(!el)return;
+  el.innerHTML=TESTS.map(function(t){
+    var st=testState[t.id]||{status:'idle'};
+    var pill={
+      idle:'<span class="tpill idle">Not run</span>',
+      run:'<span class="tpill run"><span class="spinner" style="width:10px;height:10px;border-width:1.5px"></span>Running</span>',
+      pass:'<span class="tpill pass">Pass</span>',
+      warn:'<span class="tpill warn">Check</span>',
+      fail:'<span class="tpill fail">Fail</span>'
+    }[st.status]||'';
+    return '<div class="trow"><div style="flex:1;min-width:0"><div class="tname">'+t.name+'</div>'+
+      (st.detail?'<div class="tdetail">'+esc(st.detail)+'</div>':'')+'</div>'+
+      (st.code?'<span class="tcode">'+st.code+'</span>':'')+pill+'</div>';
+  }).join('');
+}
+function setTest(id,status,detail,code){testState[id]={status:status,detail:detail||'',code:code||''};renderTests();}
+function failTest(id,err,step){
+  var code=classifyError(err);
+  var m=(err&&err.message)||String(err);
+  setTest(id,'fail',(step?step+' failed: ':'')+m+' → '+ERROR_CODES[code].fix,code);
+  return code;
 }
 
-async function runSaveTest(){
-  var out=document.getElementById('conn-log');
-  function line(t){out.textContent+=t+'\n';}
-  out.textContent='';
-  if(!IS_LIVE){line('Offline preview mode. Nothing to test.');return;}
-  if(!habits.length){line('Add a habit first, then run this again.');return;}
-  var hid=habits[0].id, probe='1970-01-01';
-  line('User id: '+UID);
-  line('Habit:   '+habits[0].name);
-  var up=await sb.from('habit_logs').upsert({user_id:UID,habit_id:hid,log_date:probe,state:'yes'},{onConflict:'habit_id,log_date'});
-  if(up.error){
-    line('UPSERT  failed  ['+(up.error.code||'?')+'] '+up.error.message);
-    if(DB_HINTS[up.error.code])line('        → '+DB_HINTS[up.error.code]);
-  } else line('UPSERT  ok');
-  var rd=await sb.from('habit_logs').select('*').eq('habit_id',hid).eq('log_date',probe);
-  line('READ    '+(rd.error?('failed ['+(rd.error.code||'?')+'] '+rd.error.message):((rd.data||[]).length+' row(s) returned')));
-  var dl=await sb.from('habit_logs').delete().eq('habit_id',hid).eq('log_date',probe).eq('user_id',UID);
-  line('DELETE  '+(dl.error?('failed ['+(dl.error.code||'?')+'] '+dl.error.message):'ok'));
-  line('');
-  line(up.error||rd.error||dl.error?'Copy the code above. It identifies the exact cause.':'All three operations succeeded. Saving is working.');
+async function runAllTests(){
+  if(testsRunning)return;
+  testsRunning=true;
+  var btn=document.getElementById('run-tests-btn');
+  if(btn){btn.disabled=true;btn.textContent='Running…';}
+  var sm=document.getElementById('test-summary');if(sm){sm.textContent='';}
+  testState={};TESTS.forEach(function(t){testState[t.id]={status:'idle'};});renderTests();
+  var ctx={};
+  try{
+    await testApp(ctx);
+    if(!IS_LIVE){
+      TESTS.slice(1).forEach(function(t){setTest(t.id,'warn','Skipped in offline preview mode.','');});
+    } else {
+      var netOk=await testNet(ctx);
+      var authOk=netOk&&await testAuth(ctx);
+      if(!authOk){
+        ['auth','read','logwrite','unique','otherwrite','fullload','screen'].forEach(function(id){
+          if(id==='auth'&&!netOk)setTest(id,'fail','Skipped: no connection to Supabase.','LOS-100');
+          else if(id!=='auth')setTest(id,'fail','Skipped: '+(netOk?'not signed in.':'no connection to Supabase.'),netOk?'LOS-111':'LOS-100');
+        });
+      } else {
+        await testRead(ctx);
+        await testLogWrite(ctx);
+        await testUnique(ctx);
+        await testOtherWrite(ctx);
+        await testFullLoad(ctx);
+        await testScreen(ctx);
+      }
+    }
+  }catch(e){
+    console.error('[LifeOS] test runner crashed',e);
+    reportError('Running tests',e);
+  }
+  testsRunning=false;
+  if(btn){btn.disabled=false;btn.textContent='Run all tests';}
+  var sum=testSummary();
+  if(sm){sm.textContent=sum.text;sm.style.color=sum.color;}
+  setHealth(sum.fail?'bad':'ok',sum.fail?sum.fail+' test'+(sum.fail>1?'s':'')+' failed':'All tests passed');
+  try{localStorage.setItem('los_last_tests',JSON.stringify({at:new Date().toISOString(),results:testState}));}catch(e){}
+}
+
+function testSummary(){
+  var v=TESTS.map(function(t){return(testState[t.id]||{}).status;});
+  var f=v.filter(function(x){return x==='fail';}).length,w=v.filter(function(x){return x==='warn';}).length;
+  var tm=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  if(f)return{fail:f,text:f+' failed · '+tm,color:'var(--red)'};
+  if(w)return{fail:0,text:'Passed, '+w+' to check · '+tm,color:'var(--amber)'};
+  return{fail:0,text:'All passed · '+tm,color:'var(--green)'};
+}
+
+async function testApp(){
+  setTest('app','run');
+  var device=ymd(new Date());
+  var tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone;}catch(e){}
+  if(device!==TODAY){setTest('app','warn','The app thinks today is '+TODAY+' but it is '+device+'. Tap Restart app.','LOS-170');return;}
+  setTest('app','pass','Version '+APP_VERSION+' · today is '+TODAY+(tz?' · '+tz:''));
+}
+
+async function testNet(){
+  setTest('net','run');
+  if(!navigator.onLine){setTest('net','fail','This device reports no internet connection.','LOS-100');return false;}
+  var t0=Date.now();
+  try{
+    var ac=new AbortController();var to=setTimeout(function(){ac.abort();},8000);
+    var r=await fetch(SB_URL+'/auth/v1/health',{headers:{apikey:SB_KEY},signal:ac.signal,cache:'no-store'});
+    clearTimeout(to);
+    var ms=Date.now()-t0;
+    if(r.ok){setTest('net','pass','Supabase answered in '+ms+' ms');return true;}
+    if(r.status>=500){setTest('net','fail','Supabase returned HTTP '+r.status+'. The project may be paused. Check your Supabase dashboard.','LOS-101');return false;}
+    setTest('net','warn','Supabase answered with HTTP '+r.status+' in '+ms+' ms','');return true;
+  }catch(e){
+    setTest('net','fail','Could not reach Supabase: '+(e.name==='AbortError'?'no answer after 8 seconds':e.message),'LOS-100');
+    return false;
+  }
+}
+
+async function testAuth(ctx){
+  setTest('auth','run');
+  try{
+    var s=await sb.auth.getSession();
+    var sess=s.data&&s.data.session;
+    if(!sess){setTest('auth','fail','No active login on this device. Sign in again.','LOS-111');return false;}
+    var u=await sb.auth.getUser(); // asks the server, not just the device
+    if(u.error){failTest('auth',u.error,'Login check');return false;}
+    ctx.email=u.data.user.email;
+    if(u.data.user.id!==UID){setTest('auth','warn','Signed in as '+ctx.email+', but the screen holds another account\'s data. Tap Restart app.','LOS-161');return true;}
+    var mins=sess.expires_at?Math.max(0,Math.round((sess.expires_at*1000-Date.now())/60000)):null;
+    setTest('auth','pass','Signed in as '+ctx.email+(mins!==null?' · login renews in '+mins+' min':''));
+    return true;
+  }catch(e){failTest('auth',e,'Login check');return false;}
+}
+
+async function testRead(ctx){
+  setTest('read','run');
+  var res=await Promise.all(ALL_TABLES.map(function(t){
+    return sb.from(t).select('*',{count:'exact',head:true}).eq('user_id',UID);
+  }));
+  var bad=[],counts=[];
+  res.forEach(function(r,i){if(r.error)bad.push({t:ALL_TABLES[i],e:r.error});else counts.push(ALL_TABLES[i]+' '+r.count);});
+  ctx.serverLogCount=res[1].error?null:res[1].count;
+  if(bad.length){
+    var code=classifyError(bad[0].e);
+    setTest('read','fail',bad.map(function(b){return b.t+': '+(b.e.message||b.e.code||'error');}).join(' | ')+' → '+ERROR_CODES[code].fix,code);
+    return;
+  }
+  setTest('read','pass',counts.join(' · '));
+}
+
+async function cleanupProbe(hid){
+  try{await sb.from('habit_logs').delete().eq('habit_id',hid).eq('log_date',PROBE_DATE).eq('user_id',UID);}catch(e){}
+}
+
+async function testLogWrite(){
+  setTest('logwrite','run');
+  if(!habits.length){setTest('logwrite','warn','Add a habit first so there is something to test with.','');return;}
+  var hid=habits[0].id,t0=Date.now();
+  var up=await sb.from('habit_logs').upsert({user_id:UID,habit_id:hid,log_date:PROBE_DATE,state:'yes'},{onConflict:'habit_id,log_date'});
+  if(up.error){failTest('logwrite',up.error,'Save');return;}
+  var rd=await sb.from('habit_logs').select('state').eq('habit_id',hid).eq('log_date',PROBE_DATE).eq('user_id',UID);
+  if(rd.error){failTest('logwrite',rd.error,'Read back');await cleanupProbe(hid);return;}
+  if(!rd.data.length||rd.data[0].state!=='yes'){setTest('logwrite','fail','Save reported success, but the entry was not there when read back.','LOS-150');await cleanupProbe(hid);return;}
+  var dl=await sb.from('habit_logs').delete().eq('habit_id',hid).eq('log_date',PROBE_DATE).eq('user_id',UID);
+  if(dl.error){failTest('logwrite',dl.error,'Clear');return;}
+  var gone=await sb.from('habit_logs').select('state').eq('habit_id',hid).eq('log_date',PROBE_DATE).eq('user_id',UID);
+  if(!gone.error&&gone.data.length){setTest('logwrite','fail','Clearing reported success, but the entry is still stored. Setting a habit back to neutral would not stick.','LOS-120');return;}
+  setTest('logwrite','pass','Saved, confirmed and cleared in '+(Date.now()-t0)+' ms (tested with '+habits[0].name+')');
+}
+
+async function testUnique(){
+  setTest('unique','run');
+  if(!habits.length){setTest('unique','warn','Add a habit first.','');return;}
+  var hid=habits[0].id;
+  var a=await sb.from('habit_logs').upsert({user_id:UID,habit_id:hid,log_date:PROBE_DATE,state:'yes'},{onConflict:'habit_id,log_date'});
+  if(a.error){failTest('unique',a.error,'First save');return;}
+  var b=await sb.from('habit_logs').upsert({user_id:UID,habit_id:hid,log_date:PROBE_DATE,state:'no'},{onConflict:'habit_id,log_date'});
+  if(b.error){failTest('unique',b.error,'Change Y to N');await cleanupProbe(hid);return;}
+  var rd=await sb.from('habit_logs').select('state').eq('habit_id',hid).eq('log_date',PROBE_DATE).eq('user_id',UID);
+  await cleanupProbe(hid);
+  if(rd.error){failTest('unique',rd.error,'Read back');return;}
+  if(rd.data.length>1){setTest('unique','fail',rd.data.length+' entries stored for one habit on one day. The database is not preventing duplicates.','LOS-131');return;}
+  if(!rd.data.length||rd.data[0].state!=='no'){setTest('unique','fail','Changing a log from Y to N did not update the stored value.','LOS-150');return;}
+  setTest('unique','pass','Changing Y to N updates the same entry instead of adding a second one');
+}
+
+async function testOtherWrite(){
+  setTest('otherwrite','run');
+  var kw='__lifeos_test_'+Date.now();
+  var ins=await sb.from('rules').insert({user_id:UID,keyword:kw,cat:'other',match_type:'exact'}).select();
+  if(ins.error){failTest('otherwrite',ins.error,'Save');return;}
+  var row=ins.data&&ins.data[0];
+  var del=(row&&row.id)
+    ?await sb.from('rules').delete().eq('id',row.id)
+    :await sb.from('rules').delete().eq('keyword',kw).eq('user_id',UID);
+  if(del.error){failTest('otherwrite',del.error,'Delete');return;}
+  var chk=await sb.from('rules').select('keyword').eq('keyword',kw).eq('user_id',UID);
+  if(!chk.error&&chk.data.length){setTest('otherwrite','warn','Saving works, but the test entry could not be deleted. Remove the rule named '+kw+' in Finance → Rules.','LOS-120');return;}
+  setTest('otherwrite','pass','Saving and deleting a regular record works');
+}
+
+async function testFullLoad(ctx){
+  setTest('fullload','run');
+  var r=await fetchAll(function(){return sb.from('habit_logs').select('habit_id,log_date,state').eq('user_id',UID);},[['log_date'],['habit_id']]);
+  if(r.error){failTest('fullload',r.error,'Load');return;}
+  r.data=r.data.filter(function(l){return l.log_date!==PROBE_DATE;}); // ignore the hidden test entry
+  ctx.serverRows=r.data;
+  var cnt=await sb.from('habit_logs').select('habit_id',{count:'exact',head:true}).eq('user_id',UID).neq('log_date',PROBE_DATE);
+  ctx.serverLogCount=cnt.error?null:cnt.count;
+  var keys={};r.data.forEach(function(l){var k=l.habit_id+'_'+l.log_date;keys[k]=(keys[k]||0)+1;});
+  var dups=r.data.length-Object.keys(keys).length;
+  var habitIds={};habits.forEach(function(h){habitIds[String(h.id)]=1;});
+  var orphans=r.data.filter(function(l){return !habitIds[String(l.habit_id)];}).length;
+  if(ctx.serverLogCount!=null&&ctx.serverLogCount!==r.data.length){
+    setTest('fullload','fail','Supabase holds '+ctx.serverLogCount+' logs but only '+r.data.length+' loaded.','LOS-161');return;
+  }
+  if(dups>0){setTest('fullload','fail','All '+r.data.length+' logs loaded, but '+dups+' are extra copies of the same habit and day.','LOS-131');return;}
+  var msg='All '+r.data.length+' stored logs loaded'+(r.data.length>1000?' (past the old 1,000-row limit)':'');
+  if(orphans>0){setTest('fullload','warn',msg+'. '+orphans+' belong to habits that no longer exist, so they are not shown anywhere.','');return;}
+  setTest('fullload','pass',msg);
+}
+
+function labelKey(k){
+  var i=k.lastIndexOf('_'),hid=k.slice(0,i),ds=k.slice(i+1);
+  var h=habits.find(function(x){return String(x.id)===hid;});
+  return (h?h.name:'deleted habit')+' '+ds;
+}
+
+async function testScreen(ctx){
+  setTest('screen','run');
+  if(!ctx.serverRows){setTest('screen','fail','Skipped because the full load failed.','LOS-160');return;}
+  var server={};ctx.serverRows.forEach(function(l){server[l.habit_id+'_'+l.log_date]=l.state;});
+  var missing=[],extra=[],diff=[];
+  Object.keys(server).forEach(function(k){if(!(k in logs))missing.push(k);else if(logs[k]!==server[k])diff.push(k);});
+  Object.keys(logs).forEach(function(k){if(!(k in server))extra.push(k);});
+  if(!missing.length&&!extra.length&&!diff.length){
+    setTest('screen','pass','All '+Object.keys(server).length+' logs on screen match Supabase exactly');return;
+  }
+  var parts=[];
+  if(extra.length)parts.push(extra.length+' showing but NOT stored ('+extra.slice(0,3).map(labelKey).join(', ')+')');
+  if(missing.length)parts.push(missing.length+' stored but not showing ('+missing.slice(0,3).map(labelKey).join(', ')+')');
+  if(diff.length)parts.push(diff.length+' with a different value ('+diff.slice(0,3).map(labelKey).join(', ')+')');
+  setTest('screen','fail',parts.join(' · ')+'. The screen has now been refreshed from Supabase.','LOS-161');
+  await refreshLogs();
+}
+
+// ── SETTINGS: PAGE ──
+var USER_EMAIL='';
+function renderSettings(){
+  var el=document.getElementById('set-status');
+  if(el){
+    var rows=[
+      ['App version',APP_VERSION],
+      ['Mode',IS_LIVE?'Live · saving to Supabase':'Offline preview · not saved'],
+      ['Signed in as',USER_EMAIL||'—'],
+      ['Last synced',lastSyncAt?new Date(lastSyncAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'—'],
+      ['Logs loaded',String(Object.keys(logs).length)],
+      ['App date · device date',TODAY+' · '+ymd(new Date())],
+      ['Internet',navigator.onLine?'Online':'Offline']
+    ];
+    el.innerHTML=rows.map(function(r){return '<div class="srow"><span>'+r[0]+'</span><span>'+esc(r[1])+'</span></div>';}).join('');
+  }
+  if(!Object.keys(testState).length){
+    var last=null;try{last=JSON.parse(localStorage.getItem('los_last_tests'));}catch(e){}
+    if(last&&last.results){
+      testState=last.results;
+      Object.keys(testState).forEach(function(k){if(testState[k].status==='run')testState[k]={status:'idle'};});
+      var sm=document.getElementById('test-summary');
+      if(sm){sm.textContent='Last run '+new Date(last.at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});sm.style.color='var(--txt3)';}
+    }
+  }
+  renderTests();renderStoredLogs();renderErrLog();renderCodeRef();
+}
+
+var storedLogsBusy=false;
+async function renderStoredLogs(){
+  var el=document.getElementById('stored-logs');if(!el||storedLogsBusy)return;
+  if(!IS_LIVE||!UID){el.innerHTML='<div class="empty" style="padding:16px">Available when signed in.</div>';return;}
+  storedLogsBusy=true;
+  var days=[];for(var i=6;i>=0;i--)days.push(ymd(new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate()-i)));
+  var r=await sb.from('habit_logs').select('habit_id,log_date,state').eq('user_id',UID).gte('log_date',days[0]).lte('log_date',days[6]);
+  storedLogsBusy=false;
+  if(r.error){el.innerHTML='<div class="empty" style="padding:16px">Could not load from Supabase.</div>';reportError('Loading stored logs',r.error);return;}
+  var m={};r.data.forEach(function(l){m[l.habit_id+'_'+l.log_date]=l.state;});
+  var head='<tr><th>Habit</th>'+days.map(function(ds){var d=parseYMD(ds);return '<th>'+(d.getMonth()+1)+'/'+d.getDate()+'<br>'+DAYS[(d.getDay()+6)%7][0]+'</th>';}).join('')+'</tr>';
+  var body=habits.map(function(h){
+    return '<tr><td>'+esc(h.name)+'</td>'+days.map(function(ds){
+      var k=h.id+'_'+ds,st=m[k],sc=logs[k];
+      var mm=(st||null)!==(sc||null)?' mm':'';
+      var title='Stored: '+(st||'nothing')+(mm?' · Screen: '+(sc||'nothing'):'');
+      return '<td><span class="sc'+(st==='yes'?' y':st==='no'?' n':'')+mm+'" title="'+title+'">'+(st==='yes'?'Y':st==='no'?'N':'·')+'</span></td>';
+    }).join('')+'</tr>';
+  }).join('');
+  el.innerHTML=habits.length?'<table class="stbl">'+head+body+'</table>':'<div class="empty" style="padding:16px">No habits yet.</div>';
+}
+
+function renderErrLog(){
+  var el=document.getElementById('err-log');if(!el)return;
+  var log=readErrLog();
+  if(!log.length){el.innerHTML='<div class="empty" style="padding:18px">No errors recorded on this device.</div>';return;}
+  el.innerHTML=log.slice(0,25).map(function(e){
+    var info=ERROR_CODES[e.code]||ERROR_CODES['LOS-199'];
+    return '<div class="erow"><span class="tcode">'+esc(e.code)+'</span><div style="flex:1;min-width:0">'+
+      '<div style="font-size:12px;font-weight:600">'+esc(info.title)+' · '+esc(e.context)+'</div>'+
+      '<div class="tdetail">'+esc(new Date(e.t).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))+(e.pg?' · db '+esc(e.pg):'')+(e.msg?' · '+esc(e.msg):'')+'</div></div></div>';
+  }).join('');
+}
+function clearErrLog(){if(!confirm('Clear the error history on this device?'))return;writeErrLog([]);renderErrLog();}
+function copyErrLog(){
+  var t=readErrLog().map(function(e){return e.t+'  '+e.code+'  '+e.context+(e.pg?'  db:'+e.pg:'')+'  '+e.msg;}).join('\n');
+  copyText(t?'Life OS '+APP_VERSION+'\n'+t:'No errors recorded','copy-errlog-btn');
+}
+function renderCodeRef(){
+  var el=document.getElementById('code-ref');if(!el||el.innerHTML)return;
+  el.innerHTML=Object.keys(ERROR_CODES).map(function(c){
+    var i=ERROR_CODES[c];
+    return '<div class="erow"><span class="tcode">'+c+'</span><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600">'+i.title+'</div><div class="tdetail">'+i.what+'</div></div></div>';
+  }).join('');
 }
 
 // ── CATEGORIES ──
@@ -966,6 +1383,7 @@ function seedLocalIncome(){
 }
 
 function showSaving(){
+  setHealth('busy','Saving');
   var el=document.getElementById('sav-ind');
   if(!el)return;
   el.classList.add('show');
@@ -1005,6 +1423,7 @@ async function initApp(user){
   if(initializing||(UID&&UID===user.id))return; // avoid double loads from auth events
   initializing=true;
   UID=user.id;
+  USER_EMAIL=user.email||'';
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   try{ await loadAllData(); } finally { initializing=false; }
@@ -1099,7 +1518,10 @@ async function saveBudgetToDB(){
 async function cycleDot(hid,ds){
   // If the app was left open past midnight, "today" is stale. Reload first
   // so the tap can't be written to yesterday's date.
-  if(ymd(new Date())!==TODAY){location.reload();return;}
+  if(ymd(new Date())!==TODAY){
+    try{var lg=readErrLog();lg.unshift({t:new Date().toISOString(),code:'LOS-170',context:'Tap on '+ds,msg:'App open past midnight, reloaded'});writeErrLog(lg);}catch(e){}
+    location.reload();return;
+  }
   var k=hid+'_'+ds;
   var cur=logs[k];
   var next;
@@ -1161,7 +1583,7 @@ async function cycleDot(hid,ds){
 
 // ── NAVIGATION ──
 function go(id,btn){
-  var renders={dashboard:renderDash,habits:renderHabits,finance:function(){renderFinance();populateFilters();},analytics:renderAnalytics,journal:renderJournal};
+  var renders={dashboard:renderDash,habits:renderHabits,finance:function(){renderFinance();populateFilters();},analytics:renderAnalytics,journal:renderJournal,settings:renderSettings};
   var alreadyActive=document.getElementById('pg-'+id).classList.contains('active');
   if(alreadyActive){
     var m=document.querySelector('.main');if(m)m.scrollTo({top:0,behavior:'smooth'});
@@ -2318,6 +2740,11 @@ async function sendIB(){
 }
 
 // ── INIT ──
+document.getElementById('li-version').textContent='Life OS v'+APP_VERSION;
+console.log('[LifeOS] version '+APP_VERSION);
+window.addEventListener('offline',function(){setHealth('bad','Offline');});
+window.addEventListener('online',function(){setHealth('busy','Reconnecting');if(UID)refreshLogs();});
+if(!IS_LIVE)setHealth('','Preview mode');
 document.querySelectorAll('.overlay').forEach(function(m){m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
 
 if(!IS_LIVE){
@@ -2332,7 +2759,7 @@ if(!IS_LIVE){
       UID=null;
       document.getElementById('app').style.display='none';
       document.getElementById('login-screen').style.display='flex';
-      showDbError('Session','Your sign-in expired. Please sign in again.');
+      reportError('Session check',{code:'SESSION',message:'Your sign-in expired. Please sign in again.'});
       return;
     }
     if(session&&session.user)initApp(session.user);
