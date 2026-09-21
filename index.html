@@ -118,6 +118,7 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 .dot.red{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:var(--red)}
 .dot.today{border-color:var(--blue);border-width:2px}
 .dot.future{opacity:.2;pointer-events:none}
+.dot.pending{opacity:.45;pointer-events:none}
 .mcell{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--bdr);color:var(--txt3);transition:all .15s;background:var(--sur2);font-family:var(--mono)}
 .mcell:hover{border-color:var(--blue);transform:scale(1.06)}
 .mcell.green{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.35);color:var(--green)}
@@ -194,6 +195,10 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .saving-ind{position:fixed;top:12px;right:16px;font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
 .saving-ind.show{opacity:1}
+.db-err{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top));z-index:400;max-width:92vw;width:440px;background:rgba(30,12,14,.96);border:1px solid rgba(239,68,68,.45);color:#fca5a5;padding:12px 16px;border-radius:12px;font-size:12px;line-height:1.55;cursor:pointer;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.db-err strong{color:#fecaca}
+.db-err code{font-family:var(--mono);font-size:11px;color:#fde68a}
+.db-err .dismiss{color:var(--txt3);font-size:11px;display:block;margin-top:6px}
 #mass-bar{display:none;background:var(--blue-dim);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:10px 14px;margin-bottom:10px;align-items:center;gap:10px;font-size:12px}
 .ai-fab{position:fixed;left:calc(16px + env(safe-area-inset-left));bottom:calc(78px + env(safe-area-inset-bottom));z-index:160;width:50px;height:50px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 20px rgba(59,130,246,.4);transition:transform .15s}
 .ai-fab:hover{transform:scale(1.06)}
@@ -320,6 +325,12 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
           <div class="card" style="display:none"><div class="ch"><h2>Recent transactions</h2><button class="btn btn-ghost btn-sm" onclick="go('finance',null)">See all →</button></div><div id="d-txns"></div></div>
         </div>
         <div class="card"><div class="ch"><h2>Quick log — <span id="d-day" style="color:var(--blue)"></span></h2></div><div id="d-quicklog" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+        <div class="card" style="margin-top:14px">
+          <div class="ch"><h2>Connection</h2><span id="conn-status" style="font-size:11px;color:var(--txt3);font-weight:500"></span></div>
+          <p style="font-size:12px;color:var(--txt2);margin-bottom:14px;line-height:1.6">If habit logs are not sticking, run this test. It shows the exact database error, if there is one.</p>
+          <button class="btn btn-sm" onclick="runSaveTest()">Test database write</button>
+          <div id="conn-log" style="margin-top:12px;font-size:11px;font-family:var(--mono);color:var(--txt3);white-space:pre-wrap;line-height:1.7"></div>
+        </div>
       </div>
 
       <div id="pg-habits" class="page">
@@ -603,7 +614,19 @@ hr{border:none;border-top:1px solid var(--bdr);margin:14px 0}
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const NOW=new Date();
 const TODAY_IDX=(NOW.getDay()+6)%7;
-const TODAY=NOW.toISOString().split('T')[0];
+
+// ── LOCAL DATE HELPERS (FIX) ──
+// toISOString() is UTC. In Eastern time anything after ~8pm landed on
+// tomorrow's date. These keep every date in your own timezone.
+function ymd(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function parseYMD(s){
+  var p=String(s).split('-');
+  return new Date(+p[0],(+p[1])-1,+p[2]);
+}
+const TODAY=ymd(NOW);
+
 const IS_LIVE=window.location.hostname.includes('github.io')||window.location.hostname.includes('supabase.co');
 const SB_URL='https://rvmaqoroadwbcgmemoqn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bWFxb3JvYWR3YmNnbWVtb3FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTc3OTAsImV4cCI6MjA5NjE3Mzc5MH0.w9Eg5l6OorJtqjQWWJSgBWG4nApDKyx9XZs-QbY6_VU';
@@ -614,6 +637,75 @@ let UID=null;
 let habits=[],logs={},txns=[],bills=[],incomes=[],savings=[],journal=[],rules=[],mCats={},billPaid={};
 let budget={mode:'pct',pct:10,fixed:0,savGoalAmount:0,savGoalName:''};
 let customCats=[];
+let pendingDots={};
+
+// ── ERROR SURFACING (FIX) ──
+// Supabase never throws on a database error; it returns {data,error}.
+// The old code ignored that, so failed saves looked successful.
+var lastDbError=null;
+var DB_HINTS={
+  '42P10':'The upsert target does not match a unique constraint. habit_logs needs UNIQUE (habit_id, log_date).',
+  '42501':'A row level security policy blocked this write. Check the INSERT/UPDATE/DELETE policies on this table.',
+  '42703':'A column being sent does not exist on that table.',
+  '23503':'Foreign key violation. The referenced row is missing.',
+  '23505':'Duplicate key. A unique constraint rejected the row.',
+  'PGRST301':'Your sign-in token expired. Sign out and back in.',
+  'PGRST204':'A column in the request is not in the table schema cache.'
+};
+
+function dbCheck(res,what){
+  if(res&&res.error){
+    lastDbError=res.error;
+    console.error('[LifeOS] '+what+' failed',res.error);
+    showDbError(what,res.error);
+    return false;
+  }
+  return true;
+}
+
+function showDbError(what,err){
+  var el=document.getElementById('db-error');
+  if(!el){
+    el=document.createElement('div');
+    el.id='db-error';
+    el.className='db-err';
+    el.onclick=function(){el.remove();};
+    document.body.appendChild(el);
+  }
+  var code=err&&err.code?String(err.code):'';
+  var hint=DB_HINTS[code]||'';
+  el.innerHTML='<strong>Not saved — '+what+'</strong><br>'+
+    (code?'<code>'+code+'</code> · ':'')+((err&&err.message)||String(err||'unknown error'))+
+    (hint?'<br><span style="color:#8892a4">'+hint+'</span>':'')+
+    '<span class="dismiss">Tap to dismiss</span>';
+}
+
+function clearDbError(){
+  var el=document.getElementById('db-error');
+  if(el)el.remove();
+}
+
+async function runSaveTest(){
+  var out=document.getElementById('conn-log');
+  function line(t){out.textContent+=t+'\n';}
+  out.textContent='';
+  if(!IS_LIVE){line('Offline preview mode. Nothing to test.');return;}
+  if(!habits.length){line('Add a habit first, then run this again.');return;}
+  var hid=habits[0].id, probe='1970-01-01';
+  line('User id: '+UID);
+  line('Habit:   '+habits[0].name);
+  var up=await sb.from('habit_logs').upsert({user_id:UID,habit_id:hid,log_date:probe,state:'yes'},{onConflict:'habit_id,log_date'});
+  if(up.error){
+    line('UPSERT  failed  ['+(up.error.code||'?')+'] '+up.error.message);
+    if(DB_HINTS[up.error.code])line('        → '+DB_HINTS[up.error.code]);
+  } else line('UPSERT  ok');
+  var rd=await sb.from('habit_logs').select('*').eq('habit_id',hid).eq('log_date',probe);
+  line('READ    '+(rd.error?('failed ['+(rd.error.code||'?')+'] '+rd.error.message):((rd.data||[]).length+' row(s) returned')));
+  var dl=await sb.from('habit_logs').delete().eq('habit_id',hid).eq('log_date',probe).eq('user_id',UID);
+  line('DELETE  '+(dl.error?('failed ['+(dl.error.code||'?')+'] '+dl.error.message):'ok'));
+  line('');
+  line(up.error||rd.error||dl.error?'Copy the code above. It identifies the exact cause.':'All three operations succeeded. Saving is working.');
+}
 
 // ── CATEGORIES ──
 const BASE_CATS=['eating out','groceries','subscriptions','transport','entertainment','fitness','health','shopping','bills','housing','alcohol/bars','income','transfer','personal care','other'];
@@ -627,7 +719,7 @@ const om=function(id){document.getElementById(id).classList.add('open');};
 const cm=function(id){document.getElementById(id).classList.remove('open');};
 
 // ── WEEK NAVIGATION ──
-var weekOffset=0; // 0 = current week, 1 = last week, 2 = two weeks ago, etc.
+var weekOffset=0;
 
 function getWeekDates(){
   var mon=new Date(NOW);
@@ -638,20 +730,13 @@ function getWeekDates(){
 
 function changeWeek(dir){
   weekOffset+=dir;
-  if(weekOffset<0)weekOffset=0; // can't go into the future
+  if(weekOffset<0)weekOffset=0;
   renderHabits();
 }
 
 function isWin(habit,state){
   if(!state)return null;
   return habit.dir==='increase'?state==='yes':state==='no';
-}
-
-function dotClass(habit,dateStr,isFuture,isToday){
-  if(isFuture)return'dot future';
-  var state=logs[habit.id+'_'+dateStr];
-  if(!state)return isToday?'dot today':'dot';
-  return isWin(habit,state)?'dot green':'dot red';
 }
 
 function streakInfo(habit){
@@ -664,7 +749,7 @@ function streakInfo(habit){
     var win=isWin(habit,logs[prefix+ds]);
     if(win){
       if(prevDate){
-        var diffDays=Math.round((new Date(ds)-new Date(prevDate))/86400000);
+        var diffDays=Math.round((parseYMD(ds)-parseYMD(prevDate))/86400000);
         if(diffDays===1){curStreak++;}else{curStreak=1;curStart=ds;}
       } else {curStreak=1;curStart=ds;}
       if(curStreak>maxStreak){maxStreak=curStreak;bestStart=curStart;bestEnd=ds;}
@@ -680,19 +765,18 @@ function currentStreak(habit){
   var prefix=habit.id+'_';
   var d=new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate());
   var todayState=logs[prefix+TODAY];
-  if(todayState&&!isWin(habit,todayState))return 0; // logged a loss today, streak is dead
-  if(!todayState)d.setDate(d.getDate()-1); // today not logged yet — don't break it, start from yesterday
+  if(todayState&&!isWin(habit,todayState))return 0;
+  if(!todayState)d.setDate(d.getDate()-1);
   var count=0;
   while(true){
-    var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    var state=logs[prefix+ds];
+    var state=logs[prefix+ymd(d)];
     if(state&&isWin(habit,state)){count++;d.setDate(d.getDate()-1);}
     else break;
   }
   return count;
 }
 function formatDateShort(ds){
-  return new Date(ds).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return parseYMD(ds).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 function momentumRing(current,best){
   var r=12,c=2*Math.PI*r;
@@ -713,8 +797,7 @@ function habitWeekStats(habit){
   var good=0,bad=0;
   wd.forEach(function(d){
     if(d>NOW)return;
-    var ds=d.toISOString().split('T')[0];
-    var state=logs[habit.id+'_'+ds];
+    var state=logs[habit.id+'_'+ymd(d)];
     if(!state)return;
     if(isWin(habit,state))good++;else bad++;
   });
@@ -790,11 +873,6 @@ function seedLocalIncome(){
   SS('los_incomes',incomes);
 }
 
-function persist(){
-  if(!IS_LIVE)saveLocal();
-  showSaving();
-}
-
 function showSaving(){
   var el=document.getElementById('sav-ind');
   if(!el)return;
@@ -820,21 +898,29 @@ async function signIn(){
 }
 
 async function signOut(){
-  if(IS_LIVE)await sb.auth.signOut();
+  var wasSignedIn=!!UID;
+  UID=null;
+  if(IS_LIVE&&wasSignedIn)await sb.auth.signOut();
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
-  UID=null;
+  document.getElementById('li-btn').textContent='Sign in';
+  document.getElementById('li-btn').disabled=false;
+  clearDbError();
 }
 
+var initializing=false;
 async function initApp(user){
+  if(initializing||(UID&&UID===user.id))return; // avoid double loads from auth events
+  initializing=true;
   UID=user.id;
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
-  await loadAllData();
+  try{ await loadAllData(); } finally { initializing=false; }
   renderDash();
 }
 
 async function loadAllData(){
+  var labels=['habits','habit_logs','transactions','bills','incomes','savings','journal','rules','merchant_cats','bill_paid','budget_settings'];
   var results=await Promise.all([
     sb.from('habits').select('*').eq('user_id',UID).order('sort_order'),
     sb.from('habit_logs').select('*').eq('user_id',UID),
@@ -846,8 +932,20 @@ async function loadAllData(){
     sb.from('rules').select('*').eq('user_id',UID),
     sb.from('merchant_cats').select('*').eq('user_id',UID),
     sb.from('bill_paid').select('*').eq('user_id',UID),
-    sb.from('budget_settings').select('*').eq('user_id',UID).single()
+    sb.from('budget_settings').select('*').eq('user_id',UID).maybeSingle()
   ]);
+
+  var failed=[];
+  results.forEach(function(r,i){
+    if(r.error){console.error('[LifeOS] load '+labels[i]+' failed',r.error);failed.push({name:labels[i],err:r.error});}
+  });
+  var cs=document.getElementById('conn-status');
+  if(cs){
+    cs.textContent=failed.length?('Load errors: '+failed.map(function(f){return f.name;}).join(', ')):'Connected';
+    cs.style.color=failed.length?'var(--red)':'var(--green)';
+  }
+  if(failed.length)showDbError('Loading '+failed[0].name,failed[0].err);
+
   habits=results[0].data||[];
   logs={};(results[1].data||[]).forEach(function(l){logs[l.habit_id+'_'+l.log_date]=l.state;});
   txns=(results[2].data||[]).map(function(t){return Object.assign({},t,{isTransfer:t.is_transfer});});
@@ -860,9 +958,14 @@ async function loadAllData(){
   billPaid={};(results[9].data||[]).forEach(function(b){billPaid[b.bill_id+'_'+b.month]=b.paid;});
   var budRow=results[10].data;
   budget=budRow?{mode:budRow.mode,pct:+budRow.pct,fixed:+budRow.fixed_amount,savGoalAmount:+(budRow.sav_goal_amount||0),savGoalName:budRow.sav_goal_name||''}:{mode:'pct',pct:10,fixed:0,savGoalAmount:0,savGoalName:''};
-  if(!bills.length)await seedSBBills();
-  if(!incomes.length)await seedSBIncome();
-  if(!budRow)await sb.from('budget_settings').insert({user_id:UID,mode:'pct',pct:10,fixed_amount:0,sav_goal_amount:0,sav_goal_name:''});
+
+  // Only seed when the load actually succeeded, so a failed read never creates duplicates.
+  if(!results[3].error&&!bills.length)await seedSBBills();
+  if(!results[4].error&&!incomes.length)await seedSBIncome();
+  if(!results[10].error&&!budRow){
+    var bi=await sb.from('budget_settings').insert({user_id:UID,mode:'pct',pct:10,fixed_amount:0,sav_goal_amount:0,sav_goal_name:''});
+    dbCheck(bi,'Creating budget settings');
+  }
 }
 
 async function seedSBBills(){
@@ -880,25 +983,26 @@ async function seedSBBills(){
     {user_id:UID,name:'Claude',amount:20,cat:'subscriptions',due_day:null}
   ];
   var res=await sb.from('bills').insert(rows).select();
+  if(!dbCheck(res,'Seeding bills'))return;
   bills=res.data||[];
 }
 
 async function seedSBIncome(){
   var monthly=1599.66*26/12;
   var res=await sb.from('incomes').insert({user_id:UID,name:'Salary (bi-weekly)',amount:1599.66,freq:'bi-weekly',monthly:monthly}).select();
+  if(!dbCheck(res,'Seeding income'))return;
   incomes=res.data?res.data.map(function(i){return Object.assign({},i,{monthly:+i.monthly});}):[];
 }
 
 async function saveBudgetToDB(){
+  if(!IS_LIVE){saveLocal();return true;}
   showSaving();
-  if(IS_LIVE){
-    await sb.from('budget_settings').upsert({user_id:UID,mode:budget.mode,pct:budget.pct,fixed_amount:budget.fixed,sav_goal_amount:budget.savGoalAmount||0,sav_goal_name:budget.savGoalName||'',updated_at:new Date().toISOString()},{onConflict:'user_id'});
-  } else {
-    saveLocal();
-  }
+  var res=await sb.from('budget_settings').upsert({user_id:UID,mode:budget.mode,pct:budget.pct,fixed_amount:budget.fixed,sav_goal_amount:budget.savGoalAmount||0,sav_goal_name:budget.savGoalName||'',updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  return dbCheck(res,'Saving budget settings');
 }
 
-// ── HABIT LOGS ──
+// ── HABIT LOGS (FIX) ──
+// Database first; the dot only changes after Postgres confirms.
 async function cycleDot(hid,ds){
   var k=hid+'_'+ds;
   var cur=logs[k];
@@ -906,17 +1010,30 @@ async function cycleDot(hid,ds){
   if(!cur)next='yes';
   else if(cur==='yes')next='no';
   else next=null;
-  if(next)logs[k]=next;else delete logs[k];
-  if(IS_LIVE){
-    showSaving();
-    if(next){
-      await sb.from('habit_logs').upsert({user_id:UID,habit_id:hid,log_date:ds,state:next},{onConflict:'habit_id,log_date'});
-    } else {
-      await sb.from('habit_logs').delete().eq('habit_id',hid).eq('log_date',ds).eq('user_id',UID);
-    }
-  } else {
+
+  if(!IS_LIVE){
+    if(next)logs[k]=next;else delete logs[k];
     saveLocal();
+    return;
   }
+
+  if(pendingDots[k])return;
+  pendingDots[k]=true;
+  showSaving();
+  var res;
+  try{
+    if(next){
+      res=await sb.from('habit_logs').upsert({user_id:UID,habit_id:hid,log_date:ds,state:next},{onConflict:'habit_id,log_date'});
+    } else {
+      res=await sb.from('habit_logs').delete().eq('habit_id',hid).eq('log_date',ds).eq('user_id',UID);
+    }
+  }catch(e){
+    res={error:{message:(e&&e.message)||'Network error. Check your connection.'}};
+  }
+  delete pendingDots[k];
+  if(!dbCheck(res,'Logging '+ds))return;
+  clearDbError();
+  if(next)logs[k]=next;else delete logs[k];
 }
 
 // ── NAVIGATION ──
@@ -985,8 +1102,16 @@ async function saveHabit(){
   var obj={name:name,dir:document.getElementById('h-dir').value,target:+document.getElementById('h-target').value,cat:document.getElementById('h-cat').value};
   if(IS_LIVE){
     showSaving();
-    if(id){var r1=await sb.from('habits').update(obj).eq('id',id).select();habits=habits.map(function(h){return h.id===id?r1.data[0]:h;});}
-    else{var r2=await sb.from('habits').insert(Object.assign({user_id:UID},obj,{sort_order:habits.length})).select();habits=habits.concat(r2.data);}
+    if(id){
+      var r1=await sb.from('habits').update(obj).eq('id',id).select();
+      if(!dbCheck(r1,'Saving habit'))return;
+      habits=habits.map(function(h){return h.id===id?(r1.data[0]||Object.assign({},h,obj)):h;});
+    } else {
+      var r2=await sb.from('habits').insert(Object.assign({user_id:UID},obj,{sort_order:habits.length})).select();
+      if(!dbCheck(r2,'Adding habit'))return;
+      habits=habits.concat(r2.data||[]);
+    }
+    clearDbError();
   } else {
     if(id)habits=habits.map(function(h){return h.id===id?Object.assign({},h,obj):h;});
     else habits.push(Object.assign({id:'h'+Date.now()},obj));
@@ -997,18 +1122,23 @@ async function saveHabit(){
 
 async function delHabit(){
   var id=document.getElementById('h-id').value;if(!id||!confirm('Delete this habit?'))return;
+  if(IS_LIVE){
+    showSaving();
+    var dl=await sb.from('habit_logs').delete().eq('habit_id',id).eq('user_id',UID);
+    if(!dbCheck(dl,'Deleting habit logs'))return;
+    var dh=await sb.from('habits').delete().eq('id',id);
+    if(!dbCheck(dh,'Deleting habit'))return;
+    clearDbError();
+  }
   habits=habits.filter(function(h){return h.id!==id;});
   Object.keys(logs).filter(function(k){return k.indexOf(id+'_')===0;}).forEach(function(k){delete logs[k];});
-  if(IS_LIVE){showSaving();await sb.from('habits').delete().eq('id',id);}
-  else saveLocal();
+  if(!IS_LIVE)saveLocal();
   cm('m-habit');renderHabits();renderDash();
 }
 
 function renderHabits(){
   var wd=getWeekDates();
   var isCurrentWeek=weekOffset===0;
-
-  // Week navigation bar
   var wkStart=wd[0];var wkEnd=wd[6];
   var wkLabel=wkStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+wkEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 
@@ -1022,13 +1152,12 @@ function renderHabits(){
       '<button class="btn btn-ghost btn-sm" onclick="changeWeek(-1)" style="padding:4px 10px;'+(isCurrentWeek?'opacity:.3;pointer-events:none':'')+'">Next →</button>';
   }
 
-  // Headers: date on top, day letter below
   var hdr=document.getElementById('wk-headers');
   if(hdr){
     hdr.className='wk-hdr';
     hdr.style.display='';hdr.style.gridTemplateColumns='';hdr.style.gap='';
     hdr.innerHTML='<span></span><span></span><span></span>'+wd.map(function(d,i){
-      var isToday=d.toISOString().split('T')[0]===TODAY;
+      var isToday=ymd(d)===TODAY;
       var dateStr=(d.getMonth()+1)+'/'+d.getDate();
       var dayLetter=DAYS[i][0];
       var color=isToday?'var(--blue)':'var(--txt3)';
@@ -1043,15 +1172,16 @@ function renderHabits(){
   el.innerHTML=habits.map(function(h){
     var stats=habitWeekStats(h);
     var dots=wd.map(function(d,i){
-      var ds=d.toISOString().split('T')[0];
-      var isFut=isCurrentWeek&&d>NOW; // only lock future days on current week
-      var isT=isCurrentWeek&&i===TODAY_IDX;
+      var ds=ymd(d);
+      var isFut=isCurrentWeek&&d>NOW;
+      var isT=ds===TODAY;
       var state=logs[h.id+'_'+ds];
       var cls='dot';
       var win=state?isWin(h,state):null;
       if(isFut)cls='dot future';
       else if(state)cls=win?'dot green':'dot red';
       else if(isT)cls='dot today';
+      if(pendingDots[h.id+'_'+ds])cls+=' pending';
       var lbl=state==='yes'?'Y':state==='no'?'N':DAYS[i][0];
       return '<div class="'+cls+'" onclick="cycleDot(\''+h.id+'\',\''+ds+'\').then(function(){renderHabits();renderDash();})">'+lbl+'</div>';
     }).join('');
@@ -1079,7 +1209,7 @@ var activeMonthH='all';
 var monthOffset=0;
 function changeMonth(dir){
   monthOffset+=dir;
-  if(monthOffset<0)monthOffset=0; // can't go into the future
+  if(monthOffset<0)monthOffset=0;
   renderMonthCal();
 }
 function getMonthYM(){
@@ -1105,7 +1235,7 @@ var activeYearH='all';
 var yearOffset=0;
 function changeYear(dir){
   yearOffset+=dir;
-  if(yearOffset<0)yearOffset=0; // can't go into the future
+  if(yearOffset<0)yearOffset=0;
   renderYearCal();
 }
 function getYearWeeks(yr){
@@ -1163,7 +1293,7 @@ function renderYearCal(){
     var cols=weeks.map(function(week){
       var cells=week.map(function(d){
         var inYear=d.getFullYear()===yr;
-        var ds=d.toISOString().split('T')[0];
+        var ds=ymd(d);
         if(!inYear||d>NOW)return'<div class="ycell empty"></div>';
         var state=logs[h.id+'_'+ds];
         var cls='ycell';
@@ -1209,7 +1339,8 @@ function renderMonthCal(){
     for(var i=0;i<fd;i++)cells+='<div class="mcell future"></div>';
     for(var d=1;d<=dim;d++){
       var ds=yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-      var dt=new Date(ds);var isFut=dt>NOW;var isT=ds===TODAY;
+      var dt=new Date(yr,mo,d);
+      var isFut=dt>NOW;var isT=ds===TODAY;
       var state=logs[h.id+'_'+ds];
       var cls='mcell';
       if(isFut)cls='mcell future';
@@ -1254,7 +1385,12 @@ async function onDrop(e){
   var fi=habits.findIndex(function(h){return h.id===dragId;}),ti=habits.findIndex(function(h){return h.id===row.dataset.hid;});
   if(fi<0||ti<0)return;
   habits.splice(ti,0,habits.splice(fi,1)[0]);
-  if(IS_LIVE){showSaving();await Promise.all(habits.map(function(h,i){return sb.from('habits').update({sort_order:i}).eq('id',h.id);}));}
+  if(IS_LIVE){
+    showSaving();
+    var rs=await Promise.all(habits.map(function(h,i){return sb.from('habits').update({sort_order:i}).eq('id',h.id);}));
+    var bad=rs.find(function(r){return r.error;});
+    if(bad)dbCheck(bad,'Reordering habits');
+  }
   else saveLocal();
   renderHabits();
 }
@@ -1289,8 +1425,16 @@ async function saveBill(){
   var obj={name:name,amount:amount,cat:cat,due_day:due_day};
   if(IS_LIVE){
     showSaving();
-    if(id){var r1=await sb.from('bills').update(obj).eq('id',id).select();bills=bills.map(function(b){return b.id===id?r1.data[0]:b;});}
-    else{var r2=await sb.from('bills').insert(Object.assign({user_id:UID},obj)).select();bills=bills.concat(r2.data);}
+    if(id){
+      var r1=await sb.from('bills').update(obj).eq('id',id).select();
+      if(!dbCheck(r1,'Saving bill'))return;
+      bills=bills.map(function(b){return b.id===id?(r1.data[0]||Object.assign({},b,obj)):b;});
+    } else {
+      var r2=await sb.from('bills').insert(Object.assign({user_id:UID},obj)).select();
+      if(!dbCheck(r2,'Adding bill'))return;
+      bills=bills.concat(r2.data||[]);
+    }
+    clearDbError();
   } else {
     if(id)bills=bills.map(function(b){return b.id===id?Object.assign({},b,obj):b;});
     else bills.push(Object.assign({id:'b'+Date.now()},obj));
@@ -1301,16 +1445,27 @@ async function saveBill(){
 
 async function delBill(id){
   if(!confirm('Delete this bill?'))return;
+  if(IS_LIVE){
+    showSaving();
+    var r=await sb.from('bills').delete().eq('id',id);
+    if(!dbCheck(r,'Deleting bill'))return;
+  }
   bills=bills.filter(function(b){return b.id!==id;});
-  if(IS_LIVE){showSaving();await sb.from('bills').delete().eq('id',id);}
-  else saveLocal();
+  if(!IS_LIVE)saveLocal();
   renderBudget();renderFinance();
 }
 
 async function togglePaid(bid,mk){
-  var k=bid+'_'+mk;billPaid[k]=!billPaid[k];
-  if(IS_LIVE){showSaving();await sb.from('bill_paid').upsert({user_id:UID,bill_id:bid,month:mk,paid:billPaid[k]},{onConflict:'bill_id,month'});}
-  else saveLocal();
+  var k=bid+'_'+mk;
+  var next=!billPaid[k];
+  if(IS_LIVE){
+    showSaving();
+    var r=await sb.from('bill_paid').upsert({user_id:UID,bill_id:bid,month:mk,paid:next},{onConflict:'bill_id,month'});
+    if(!dbCheck(r,'Marking bill paid'))return;
+    clearDbError();
+  }
+  billPaid[k]=next;
+  if(!IS_LIVE)saveLocal();
   renderBudget();
 }
 
@@ -1333,8 +1488,16 @@ async function saveIncome(){
   var obj={name:name,amount:amount,freq:freq,monthly:monthly};
   if(IS_LIVE){
     showSaving();
-    if(id){var r1=await sb.from('incomes').update(obj).eq('id',id).select();incomes=incomes.map(function(i){return i.id===id?Object.assign({},r1.data[0],{monthly:+r1.data[0].monthly}):i;});}
-    else{var r2=await sb.from('incomes').insert(Object.assign({user_id:UID},obj)).select();incomes=incomes.concat(r2.data.map(function(i){return Object.assign({},i,{monthly:+i.monthly});}));}
+    if(id){
+      var r1=await sb.from('incomes').update(obj).eq('id',id).select();
+      if(!dbCheck(r1,'Saving income'))return;
+      incomes=incomes.map(function(i){return i.id===id?Object.assign({},r1.data[0]||obj,{id:i.id,monthly:+((r1.data[0]||obj).monthly)}):i;});
+    } else {
+      var r2=await sb.from('incomes').insert(Object.assign({user_id:UID},obj)).select();
+      if(!dbCheck(r2,'Adding income'))return;
+      incomes=incomes.concat((r2.data||[]).map(function(i){return Object.assign({},i,{monthly:+i.monthly});}));
+    }
+    clearDbError();
   } else {
     if(id)incomes=incomes.map(function(i){return i.id===id?Object.assign({},i,obj):i;});
     else incomes.push(Object.assign({id:'i'+Date.now()},obj));
@@ -1345,9 +1508,13 @@ async function saveIncome(){
 
 async function delIncome(){
   var id=document.getElementById('inc-id').value;if(!id||!confirm('Delete?'))return;
+  if(IS_LIVE){
+    showSaving();
+    var r=await sb.from('incomes').delete().eq('id',id);
+    if(!dbCheck(r,'Deleting income'))return;
+  }
   incomes=incomes.filter(function(i){return i.id!==id;});
-  if(IS_LIVE){showSaving();await sb.from('incomes').delete().eq('id',id);}
-  else saveLocal();
+  if(!IS_LIVE)saveLocal();
   cm('m-income');renderBudget();renderFinance();
 }
 
@@ -1376,7 +1543,9 @@ async function saveSavings(){
   var amount=entryType==='balance'?rawAmt:prev+rawAmt;
   if(IS_LIVE){
     showSaving();
-    await sb.from('savings').upsert({user_id:UID,month:date,amount:amount},{onConflict:'user_id,month'});
+    var r=await sb.from('savings').upsert({user_id:UID,month:date,amount:amount},{onConflict:'user_id,month'});
+    if(!dbCheck(r,'Saving balance'))return;
+    clearDbError();
   }
   var existing=savings.findIndex(function(s){return s.month===date;});
   var entry={month:date,amount:amount,note:note,entry_type:entryType};
@@ -1396,9 +1565,11 @@ async function saveSavGoal(){
   var amount=parseFloat(document.getElementById('sg-amount').value);
   var name=document.getElementById('sg-name').value.trim();
   if(isNaN(amount)||amount<=0)return;
+  var prevAmt=budget.savGoalAmount,prevName=budget.savGoalName;
   budget.savGoalAmount=amount;
   budget.savGoalName=name;
-  await saveBudgetToDB();
+  var ok=await saveBudgetToDB();
+  if(!ok){budget.savGoalAmount=prevAmt;budget.savGoalName=prevName;return;}
   cm('m-sav-goal');
   renderSavingsTab();
 }
@@ -1585,23 +1756,30 @@ async function saveTxn(){
   var amount=parseFloat(document.getElementById('t-amount').value);
   if(!merchant||isNaN(amount))return;
   var cat=document.getElementById('t-cat-sel').value;
-  mCats[merchant.toLowerCase()]=cat;
   var obj={merchant:merchant,amount:amount,date:document.getElementById('t-date').value,type:document.getElementById('t-type').value,cat:cat,source:document.getElementById('t-src').value,is_transfer:false};
   if(IS_LIVE){
     showSaving();
-    await sb.from('merchant_cats').upsert({user_id:UID,merchant:merchant.toLowerCase(),cat:cat},{onConflict:'user_id,merchant'});
+    var mc=await sb.from('merchant_cats').upsert({user_id:UID,merchant:merchant.toLowerCase(),cat:cat},{onConflict:'user_id,merchant'});
+    dbCheck(mc,'Saving merchant category');
     var r=await sb.from('transactions').insert(Object.assign({user_id:UID},obj)).select();
+    if(!dbCheck(r,'Adding transaction'))return;
+    clearDbError();
     txns=[Object.assign({},r.data[0],{isTransfer:false})].concat(txns);
   } else {
     txns=[Object.assign({id:'t'+Date.now()},obj,{isTransfer:false})].concat(txns);saveLocal();
   }
+  mCats[merchant.toLowerCase()]=cat;
   cm('m-txn');renderTxns();renderFinance();renderDash();
 }
 
 async function delTxn(id){
+  if(IS_LIVE){
+    showSaving();
+    var r=await sb.from('transactions').delete().eq('id',id);
+    if(!dbCheck(r,'Deleting transaction'))return;
+  }
   txns=txns.filter(function(t){return t.id!==id;});
-  if(IS_LIVE){showSaving();await sb.from('transactions').delete().eq('id',id);}
-  else saveLocal();
+  if(!IS_LIVE)saveLocal();
   renderTxns();renderFinance();renderDash();
 }
 
@@ -1647,16 +1825,22 @@ function openInlineCat(id){
 async function applyInlineCat(){
   var cat=document.getElementById('inline-cat').value;
   var t=txns.find(function(x){return x.id===inlineTxnId;});if(!t)return;
-  t.cat=cat;mCats[t.merchant.toLowerCase()]=cat;
   if(IS_LIVE){
     showSaving();
-    await sb.from('transactions').update({cat:cat}).eq('id',t.id);
-    await sb.from('merchant_cats').upsert({user_id:UID,merchant:t.merchant.toLowerCase(),cat:cat},{onConflict:'user_id,merchant'});
+    var r=await sb.from('transactions').update({cat:cat}).eq('id',t.id);
+    if(!dbCheck(r,'Changing category'))return;
+    var mc=await sb.from('merchant_cats').upsert({user_id:UID,merchant:t.merchant.toLowerCase(),cat:cat},{onConflict:'user_id,merchant'});
+    dbCheck(mc,'Saving merchant category');
     if(document.getElementById('inline-rule').checked){
-      var exists=rules.find(function(r){return r.keyword.toLowerCase()===t.merchant.toLowerCase();});
-      if(!exists){var r=await sb.from('rules').insert({user_id:UID,keyword:t.merchant,cat:cat,match_type:'contains'}).select();rules=rules.concat(r.data);}
+      var exists=rules.find(function(x){return x.keyword.toLowerCase()===t.merchant.toLowerCase();});
+      if(!exists){
+        var rr=await sb.from('rules').insert({user_id:UID,keyword:t.merchant,cat:cat,match_type:'contains'}).select();
+        if(dbCheck(rr,'Saving rule'))rules=rules.concat(rr.data||[]);
+      }
     }
-  } else {saveLocal();}
+  }
+  t.cat=cat;mCats[t.merchant.toLowerCase()]=cat;
+  if(!IS_LIVE)saveLocal();
   cm('m-inline');renderTxns();renderFinance();
 }
 
@@ -1672,7 +1856,12 @@ function updateMassBar(){
 async function applyMassCat(){
   var cat=document.getElementById('mass-cat-sel').value;
   var ids=Array.from(selTxns);
-  if(IS_LIVE){showSaving();await Promise.all(ids.map(function(id){return sb.from('transactions').update({cat:cat}).eq('id',id);}));}
+  if(IS_LIVE){
+    showSaving();
+    var rs=await Promise.all(ids.map(function(id){return sb.from('transactions').update({cat:cat}).eq('id',id);}));
+    var bad=rs.find(function(r){return r.error;});
+    if(bad){dbCheck(bad,'Recategorizing transactions');return;}
+  }
   ids.forEach(function(id){var t=txns.find(function(x){return x.id===id;});if(t){t.cat=cat;mCats[t.merchant.toLowerCase()]=cat;}});
   if(!IS_LIVE)saveLocal();
   clearSel();renderTxns();renderFinance();
@@ -1744,8 +1933,16 @@ async function saveRule(){
   var id=document.getElementById('rule-id').value;var match_type=document.getElementById('rule-match').value;
   if(IS_LIVE){
     showSaving();
-    if(id){var r1=await sb.from('rules').update({keyword:keyword,cat:cat,match_type:match_type}).eq('id',id).select();rules=rules.map(function(r){return r.id===id?r1.data[0]:r;});}
-    else{var r2=await sb.from('rules').insert({user_id:UID,keyword:keyword,cat:cat,match_type:match_type}).select();rules=rules.concat(r2.data);}
+    if(id){
+      var r1=await sb.from('rules').update({keyword:keyword,cat:cat,match_type:match_type}).eq('id',id).select();
+      if(!dbCheck(r1,'Saving rule'))return;
+      rules=rules.map(function(r){return r.id===id?(r1.data[0]||Object.assign({},r,{keyword:keyword,cat:cat,match_type:match_type})):r;});
+    } else {
+      var r2=await sb.from('rules').insert({user_id:UID,keyword:keyword,cat:cat,match_type:match_type}).select();
+      if(!dbCheck(r2,'Adding rule'))return;
+      rules=rules.concat(r2.data||[]);
+    }
+    clearDbError();
   } else {
     if(id)rules=rules.map(function(r){return r.id===id?Object.assign({},r,{keyword:keyword,cat:cat,match_type:match_type}):r;});
     else rules.push({id:'r'+Date.now(),keyword:keyword,cat:cat,match_type:match_type});
@@ -1754,9 +1951,13 @@ async function saveRule(){
   cm('m-rule');renderRules();
 }
 async function delRule(id){
+  if(IS_LIVE){
+    showSaving();
+    var r=await sb.from('rules').delete().eq('id',id);
+    if(!dbCheck(r,'Deleting rule'))return;
+  }
   rules=rules.filter(function(r){return r.id!==id;});
-  if(IS_LIVE){showSaving();await sb.from('rules').delete().eq('id',id);}
-  else saveLocal();
+  if(!IS_LIVE)saveLocal();
   renderRules();
 }
 function openCatModal(){om('m-cat');}
@@ -1767,7 +1968,7 @@ function renderRules(){
   if(rl){
     rl.innerHTML=rules.map(function(r){
       return '<div class="rule-row">'+
-        '<div style="flex:1"><span style="font-weight:600">"'+r.keyword+'"</span> <span style="color:var(--txt3)">('+( r.match_type||r.match)+')</span> → <span class="cpill '+catCls(r.cat)+'" style="cursor:default">'+r.cat+'</span></div>'+
+        '<div style="flex:1"><span style="font-weight:600">"'+r.keyword+'"</span> <span style="color:var(--txt3)">('+(r.match_type||r.match)+')</span> → <span class="cpill '+catCls(r.cat)+'" style="cursor:default">'+r.cat+'</span></div>'+
         '<button class="btn-icon" onclick="openRuleModal(\''+r.id+'\')"><svg style="width:12px;height:12px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+
         '<button class="btn-icon" onclick="delRule(\''+r.id+'\')"><svg style="width:12px;height:12px;stroke:var(--red);fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'+
       '</div>';
@@ -1816,7 +2017,7 @@ function renderAnalytics(){
   document.getElementById('an-habits').innerHTML=habits.map(function(h){
     var wks=Array.from({length:4},function(_,w){
       var ws=getWkStart(3-w);var good=0,total=0;
-      for(var d=0;d<7;d++){var dd=new Date(ws);dd.setDate(ws.getDate()+d);if(dd>NOW)continue;var ds=dd.toISOString().split('T')[0];var state=logs[h.id+'_'+ds];if(!state)continue;total++;if(isWin(h,state))good++;}
+      for(var d=0;d<7;d++){var dd=new Date(ws);dd.setDate(ws.getDate()+d);if(dd>NOW)continue;var state=logs[h.id+'_'+ymd(dd)];if(!state)continue;total++;if(isWin(h,state))good++;}
       return{good:good,total:total,pct:total>0?Math.round(good/total*100):0};
     });
     var avg=Math.round(wks.reduce(function(s,w){return s+w.pct;},0)/4);
@@ -1827,7 +2028,7 @@ function renderAnalytics(){
   }).join('')||'<div class="empty">No habits to analyze.</div>';
   document.getElementById('an-goals').innerHTML=habits.map(function(h){
     var hit=0;
-    for(var w=0;w<4;w++){var ws=getWkStart(w);var good=0,total=0;for(var d=0;d<7;d++){var dd=new Date(ws);dd.setDate(ws.getDate()+d);if(dd>NOW)continue;var ds=dd.toISOString().split('T')[0];var state=logs[h.id+'_'+ds];if(!state)continue;total++;if(isWin(h,state))good++;}if(total>0&&good/total>=0.8)hit++;}
+    for(var w=0;w<4;w++){var ws=getWkStart(w);var good=0,total=0;for(var d=0;d<7;d++){var dd=new Date(ws);dd.setDate(ws.getDate()+d);if(dd>NOW)continue;var state=logs[h.id+'_'+ymd(dd)];if(!state)continue;total++;if(isWin(h,state))good++;}if(total>0&&good/total>=0.8)hit++;}
     var pct=Math.round(hit/4*100);
     return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="width:90px;flex-shrink:0;font-size:13px;font-weight:500">'+h.name+'</span><div class="pbar" style="flex:1;height:6px"><div class="pbar-fill '+(pct>=75?'good':pct>=40?'warn':'bad')+'" style="width:'+pct+'%"></div></div><span style="width:34px;text-align:right;font-size:12px;font-weight:700;color:var(--txt2)">'+pct+'%</span></div>';
   }).join('')||'<div class="empty">No data yet.</div>';
@@ -1860,6 +2061,8 @@ async function saveJournal(){
   if(IS_LIVE){
     showSaving();
     var r=await sb.from('journal').insert(Object.assign({user_id:UID,entry_date:TODAY},entry)).select();
+    if(!dbCheck(r,'Saving journal entry'))return;
+    clearDbError();
     journal=[r.data[0]].concat(journal);
   } else {
     journal=[Object.assign({id:'j'+Date.now(),entry_date:TODAY},entry)].concat(journal);saveLocal();
@@ -1929,19 +2132,24 @@ async function parseCSV(lines,bank){
     var cat=isTransfer?'transfer':(applyRules(merchant)||guessCategory(merchant));
     toInsert.push({merchant:merchant,amount:amt,date:date,type:isTransfer?'transfer':'expense',cat:cat,source:bank,is_transfer:isTransfer});
   }
+  var imported=0;
   if(toInsert.length){
     showSaving();
     if(IS_LIVE){
       var r=await sb.from('transactions').insert(toInsert.map(function(t){return Object.assign({user_id:UID},t);})).select();
+      if(!dbCheck(r,'Importing transactions'))return;
+      clearDbError();
+      imported=(r.data||[]).length;
       txns=(r.data||[]).map(function(t){return Object.assign({},t,{isTransfer:t.is_transfer});}).concat(txns);
     } else {
       toInsert.forEach(function(t){txns.unshift(Object.assign({id:'t'+Date.now()+Math.random()},t,{isTransfer:t.is_transfer}));});
+      imported=toInsert.length;
       saveLocal();
     }
   }
   var log=document.getElementById('import-log');
   log.innerHTML='<div style="padding:10px 14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:8px;color:var(--green);font-weight:600;font-size:12px;margin-bottom:8px">'+
-    (bank==='wf'?'Wells Fargo':'Discover')+': '+toInsert.length+' imported, '+skipped+' skipped'+
+    (bank==='wf'?'Wells Fargo':'Discover')+': '+imported+' imported, '+skipped+' skipped'+
   '</div>'+(log.innerHTML||'');
   renderFinance();renderDash();populateFilters();
 }
@@ -1995,7 +2203,17 @@ if(!IS_LIVE){
   loadLocalData();
   renderDash();
 } else {
-  sb.auth.onAuthStateChange(function(event,session){if(session&&session.user)initApp(session.user);});
+  sb.auth.onAuthStateChange(function(event,session){
+    if(event==='TOKEN_REFRESHED')clearDbError();
+    if(event==='SIGNED_OUT'&&UID){
+      UID=null;
+      document.getElementById('app').style.display='none';
+      document.getElementById('login-screen').style.display='flex';
+      showDbError('Session','Your sign-in expired. Please sign in again.');
+      return;
+    }
+    if(session&&session.user)initApp(session.user);
+  });
   sb.auth.getSession().then(function(result){if(!result.data.session)document.getElementById('login-screen').style.display='flex';});
 }
 </script>
